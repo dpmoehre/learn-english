@@ -173,12 +173,24 @@
       .timer { font-size: 48px; }
     }
   </style>
+<style>
+section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-visible,a:focus-visible { outline:3px solid #c45c26; outline-offset:4px; }
+.lesson-tab[aria-pressed="true"] { background:var(--navy); color:white; }
+.lesson-intro { background:#edf2ec; border-radius:12px; padding:18px; line-height:1.8; }
+.lesson-line { border-bottom:1px solid var(--line); padding:16px 0; }
+.lesson-line p { margin:6px 0; } .english { font-size:21px; color:var(--navy); line-height:1.6; }
+.feedback { padding:12px; background:#f2eadc; border-radius:10px; line-height:1.7; }
+#lessonPanel { padding:clamp(18px,4vw,32px); } #lessonPanel h3 { margin-top:20px; }
+#lessonPanel .opt { line-height:1.6; } #wordList p { line-height:1.7; }
+@media(max-width:480px) { .wrap {padding-inline:14px;} .nav {gap:2px;padding:8px 14px;} .brand {width:100%;} .flip,.flip-inner {min-height:310px;} .g2 {grid-template-columns:minmax(0,1fr);} }
+@media(prefers-reduced-motion:reduce) { html{scroll-behavior:auto;} *{transition:none!important;} }
+</style><link rel="stylesheet" href="experience.css">
 </head>
 <body>
   <header class="top">
     <div class="nav">
-      <div class="brand">英语学习台<small>专门用来练商务英语</small></div>
-      <a href="#map">骨架图</a>
+      <div class="brand">英语学习台<small>从校园到职场 · 中文带学</small></div>
+      <a href="#beginner">新人课程</a><a href="#workplace">外企词典</a><a href="#map">表达骨架</a>
       <a href="#scenes">场景</a>
       <a href="#cards">句卡</a>
       <a href="#mail">邮件</a>
@@ -189,29 +201,44 @@
 
   <div class="wrap">
     <section>
-      <span class="pill">办公室高频 · 每天 25 分钟</span>
-      <h1>先把 8 个场景练熟，<br>比背 500 个单词快。</h1>
-      <p class="lede">商务英语的标准不是华丽，是清楚、礼貌、可执行。这个手册把自我介绍、约会议、写邮件、汇报、提问、延期、会后总结做成可以点的工具。</p>
+      <span class="pill">零基础友好 · 每天 15 分钟</span>
+      <h1>第一次进外企，<br>从敢说一句开始。</h1>
+      <p class="lede">不懂职场规则、听不懂会议、怕说错英语？先用中文理解一个工作场景，再听懂、跟读和练习三句简单英语。你不需要一开始就说得很流利。</p>
       <div class="toolbar">
-        <button class="btn" onclick="location.hash='cards'">今天先刷 8 张句卡</button>
+        <button class="btn" onclick="location.hash='beginner'">开始今天的 15 分钟</button>
         <button class="btn ghost" onclick="location.hash='mail'">生成一封邮件</button>
-        <button class="btn ghost" onclick="resetProgress()">清空进度</button>
+        <button class="btn ghost" onclick="resetProgress()">清空今日工具记录</button>
       </div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div>
-            <strong>今日进度</strong>
+            <strong>今日工具练习记录</strong>
             <div class="muted" id="progressText">还没开始。从骨架图看一眼就练。</div>
           </div>
-          <div class="muted" id="dayHint">建议路线：图 → 句卡 → 邮件 → 60 秒口语</div>
+          <div class="muted" id="dayHint">建议先完成新人课程，再按需使用下面的工具</div>
         </div>
         <div class="progress" style="margin-top:12px"><i id="bar"></i></div>
       </div>
     </section>
 
+    <section id="beginner">
+      <span class="pill">START HERE · 新人第一周</span>
+      <h2>每天学会处理一件小事</h2>
+      <p class="muted">① 看中文情境 3 分钟 → ② 听读三句话 5 分钟 → ③ 做选择、自己说 7 分钟。课程完成情况保存在本机。</p>
+      <div class="toolbar" id="lessonTabs" aria-label="选择课程"></div>
+      <div id="lessonPanel" class="card"></div>
+      <p id="lessonStatus" role="status"></p>
+    </section>
+    <section id="workplace">
+      <h2>外企常见词，用中文讲明白</h2>
+      <p class="muted">不同公司、国家和团队的习惯会不同；这里是常见例子。遇到不确定的规则，问经理或 HR。</p>
+      <label for="wordSearch">搜索英文缩写或中文意思</label>
+      <input id="wordSearch" type="search" placeholder="试试：HR、截止、会议" />
+      <div id="wordList" class="grid g2" style="margin-top:16px"></div>
+    </section>
     <section id="map">
       <h2>一张图记住全部骨架</h2>
-      <p class="muted">任何商务句子都按这四块拼：礼貌开头 + 把事情说清楚 + 明确动作 + 给出截止时间。</p>
+      <p class="muted">提出工作请求时，可以参考这四块：礼貌开头 + 把事情说清楚 + 明确动作 + 给出截止时间。</p>
       <div class="formula">
         <div class="card"><b>Polite</b><span>Could you / I hope you’re well</span></div>
         <div class="card"><b>Clear</b><span>I’m writing about the Q3 report</span></div>
@@ -259,7 +286,7 @@
 
     <section id="mail">
       <h2>邮件生成器</h2>
-      <p class="muted">填 4 个空，立刻得到一封能改能发的英文邮件。先生成，再自己改两个词，比从零写快。</p>
+      <p class="muted">填写下面的信息（内容用英文），生成可修改的模板。发送前核对对象、事项和时区；它不会翻译中文或自动发送。</p>
       <div class="grid g2">
         <div class="card">
           <label>邮件类型</label>
@@ -309,7 +336,7 @@
     </section>
 
     <section>
-      <h2>7 天路线</h2>
+      <h2>学完入门课后：7 天巩固路线</h2>
       <div class="grid g2" id="plan"></div>
     </section>
 
@@ -318,11 +345,12 @@
 
 <script>
 function speakEnglish(text) {
-  if (!text || !window.speechSynthesis) return;
+  if (!text) return;
+  if (!window.speechSynthesis) { alert("当前浏览器不支持朗读，请查看英文并自行跟读。"); return; }
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
-  u.rate = 0.92;
+  u.rate = Number(document.getElementById("voiceRate")?.value || 0.85);
   window.speechSynthesis.speak(u);
 }
 
@@ -582,10 +610,14 @@ const ALL_CARDS = SCENES.flatMap(s => s.lines.map(l => ({
 let cardIndex = 0;
 let speakTimer = null;
 let speakLeft = 60;
-let progress = JSON.parse(localStorage.getItem("biz-en-progress") || "{}");
+function localDay() { const d = new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem("biz-en-progress") || "{}") || {}; } catch {}
+if (progress.date !== localDay()) progress = {date: localDay()};
 
 function saveProgress() {
-  localStorage.setItem("biz-en-progress", JSON.stringify(progress));
+  if (progress.date !== localDay()) progress = {date: localDay()};
+  try { localStorage.setItem("biz-en-progress", JSON.stringify(progress)); } catch {}
   const keys = ["scene", "card", "mail", "speak", "quiz"];
   const done = keys.filter(k => progress[k]).length;
   document.getElementById("bar").style.width = (done / keys.length * 100) + "%";
@@ -595,12 +627,13 @@ function saveProgress() {
 }
 
 function mark(key) {
+  if (progress.date !== localDay()) progress = {date: localDay()};
   progress[key] = true;
   saveProgress();
 }
 
 function resetProgress() {
-  progress = {};
+  progress = {date: localDay()};
   saveProgress();
 }
 
@@ -621,7 +654,7 @@ function openScene(id) {
   el.style.display = "block";
   el.innerHTML = `<h3>${s.no} ${s.title} · ${s.en}</h3>` + s.lines.map(l =>
     `<p><strong>${l[0]}</strong><br>${l[1]}<br><span class="muted">${l[2]}</span><br>
-     <button class="btn ghost" type="button" onclick="speakEnglish(${JSON.stringify(l[1])})">朗读</button></p>`
+     <button class="btn ghost" type="button" onclick="speakEnglish(SCENES.find(s => s.id === '${s.id}').lines[${s.lines.indexOf(l)}][1])">朗读</button></p>`
   ).join("");
   mark("scene");
   el.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -755,7 +788,7 @@ function setupQuiz() {
 
 function pick(btn) {
   const q = btn.dataset.q;
-  document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(b => b.classList.remove("picked"));
+  document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(b => { b.classList.remove("picked"); b.style.outline = ""; });
   btn.classList.add("picked");
   btn.style.outline = "2px solid #1e3a5f";
 }
@@ -789,5 +822,7 @@ setupPlan();
 drawSpeak();
 saveProgress();
 </script>
+<script src="beginner.js"></script>
+<script src="experience.js"></script>
 </body>
 </html>
