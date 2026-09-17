@@ -336,6 +336,144 @@ const VOCAB_LISTS = [
       ["PFA", "附件见", "PFA the meeting notes."],
       ["Q1", "第一季度", "This is a Q1 target."]
     ]
+  },
+  {
+    id: "jobs-jd",
+    title: "招聘信息",
+    words: [
+      ["job posting", "招聘启事", "I found this job posting today."],
+      ["JD", "职位描述", "Please read the JD first."],
+      ["opening", "空缺职位", "There is one opening in sales."],
+      ["apply", "投递申请", "I will apply for this role."],
+      ["application", "申请材料", "I submitted my application."],
+      ["candidate", "候选人", "They will meet three candidates."],
+      ["hiring manager", "用人经理", "The hiring manager will join."],
+      ["recruiter", "招聘专员", "The recruiter sent me the JD."],
+      ["resume", "简历", "Please update your resume."],
+      ["CV", "简历（英式）", "Please send your CV by Friday."],
+      ["cover letter", "求职信", "A cover letter is optional."],
+      ["requirement", "任职要求", "The JD lists the key requirements."],
+      ["must-have", "硬性要求", "Excel is a must-have for this role."],
+      ["nice-to-have", "加分项", "Chinese is nice-to-have."],
+      ["screening", "初筛", "The screening call is on Monday."],
+      ["shortlist", "进入复试名单", "I was shortlisted for round two."],
+      ["interview", "面试", "I have an interview tomorrow."],
+      ["offer", "录用通知", "I received an offer today."]
+    ]
+  },
+  {
+    id: "jobs-level",
+    title: "职级头衔",
+    words: [
+      ["intern", "实习生", "This is an intern role."],
+      ["graduate", "应届生", "This is a graduate program."],
+      ["trainee", "管培生／见习", "I’m applying for a trainee role."],
+      ["junior", "初级", "This is a junior position."],
+      ["associate", "专员级", "She is an associate in finance."],
+      ["specialist", "专员", "I’m applying for a specialist role."],
+      ["coordinator", "协调员", "The coordinator will book the room."],
+      ["analyst", "分析师", "He is a business analyst."],
+      ["consultant", "顾问", "She works as a consultant."],
+      ["senior", "资深", "This is a senior position."],
+      ["principal", "资深专家", "He is a principal engineer."],
+      ["IC", "个人贡献者", "This role is an IC, not a manager."],
+      ["people manager", "带人经理", "She is a people manager."],
+      ["senior manager", "高级经理", "Please ask the senior manager."],
+      ["VP", "副总裁", "The VP will join the interview."],
+      ["Head of", "某部门负责人", "She is Head of Sales."],
+      ["C-level", "高管层", "C-level leaders will join."],
+      ["grade", "职级", "What’s the grade of this role?"]
+    ]
+  },
+  {
+    id: "jobs-admin",
+    title: "行政人事财务",
+    words: [
+      ["administrative assistant", "行政助理", "I’m applying for administrative assistant."],
+      ["executive assistant", "高管助理", "The executive assistant supports the director."],
+      ["secretary", "秘书", "This is a secretary intern role."],
+      ["receptionist", "前台", "The receptionist will meet you first."],
+      ["office manager", "办公室主管", "Please ask the office manager."],
+      ["HR assistant", "人事助理", "The HR assistant handles onboarding."],
+      ["HRBP", "人力资源业务伙伴", "Our HRBP can explain the policy."],
+      ["talent acquisition", "人才招聘", "Talent acquisition posted this job."],
+      ["campus recruiter", "校园招聘", "The campus recruiter will visit our school."],
+      ["compensation", "薪酬福利", "Please ask HR about compensation."],
+      ["payroll", "发薪", "Payroll is handled by finance."],
+      ["accountant", "会计", "We are hiring an accountant."],
+      ["financial analyst", "财务分析师", "The financial analyst checks the numbers."],
+      ["accounts payable", "应付账款", "She works in accounts payable."],
+      ["auditor", "审计", "The auditor will review the files."],
+      ["legal counsel", "法务顾问", "Please loop in legal counsel."],
+      ["compliance", "合规", "This needs a compliance check."],
+      ["controller", "财务主管", "The controller will approve this."]
+    ]
+  },
+  {
+    id: "jobs-sales",
+    title: "销售市场客服",
+    words: [
+      ["sales representative", "销售代表", "We are hiring a sales representative."],
+      ["account executive", "客户经理", "She is an account executive."],
+      ["account manager", "客户经理／客户管理", "I’m the account manager for this client."],
+      ["key account", "大客户", "He manages key accounts."],
+      ["business development", "商务拓展", "This is a business development role."],
+      ["sales coordinator", "销售协调", "The sales coordinator prepares quotes."],
+      ["sales support", "销售支持", "I applied for sales support."],
+      ["inside sales", "内勤销售", "This is an inside sales role."],
+      ["pre-sales", "售前", "Pre-sales will join the customer call."],
+      ["customer success", "客户成功", "Customer success follows after the deal."],
+      ["customer service", "客户服务", "Please call customer service."],
+      ["marketing specialist", "市场专员", "I’m applying for marketing specialist."],
+      ["brand manager", "品牌经理", "The brand manager owns this campaign."],
+      ["digital marketing", "数字营销", "This role focuses on digital marketing."],
+      ["content specialist", "内容专员", "The content specialist writes the posts."],
+      ["PR", "公共关系", "PR will review the announcement."]
+    ]
+  },
+  {
+    id: "jobs-ops",
+    title: "运营项目供应链",
+    words: [
+      ["operations assistant", "运营助理", "I’m applying for operations assistant."],
+      ["operations specialist", "运营专员", "This is an operations specialist role."],
+      ["project coordinator", "项目协调", "The project coordinator tracks action items."],
+      ["project manager", "项目经理", "The project manager owns the timeline."],
+      ["program manager", "项目群经理", "She is the program manager."],
+      ["business operations", "业务运营", "This role sits in business operations."],
+      ["process specialist", "流程专员", "He is a process specialist."],
+      ["supply chain", "供应链", "We have an opening in supply chain."],
+      ["procurement", "采购", "Procurement will review the quote."],
+      ["buyer", "采购员", "The buyer will place the order."],
+      ["planner", "计划员", "The planner checks the demand."],
+      ["logistics coordinator", "物流协调", "The logistics coordinator books the shipment."],
+      ["warehouse", "仓库", "This role is based in the warehouse."],
+      ["quality engineer", "质量工程师", "QA found one issue. Ask the quality engineer."],
+      ["HSE", "健康安全环境", "Please follow the HSE rules."],
+      ["EHS", "环境健康安全", "EHS training is on Monday."]
+    ]
+  },
+  {
+    id: "jobs-tech",
+    title: "技术产品数据",
+    words: [
+      ["software engineer", "软件工程师", "We are hiring a software engineer."],
+      ["developer", "开发工程师", "The developer will fix this bug."],
+      ["IT support", "IT 支持", "Please ask IT support for access."],
+      ["system administrator", "系统管理员", "The system administrator reset my password."],
+      ["product manager", "产品经理", "The product manager wrote the requirement."],
+      ["product owner", "产品负责人", "The product owner will join the standup."],
+      ["UX designer", "用户体验设计师", "The UX designer will review the flow."],
+      ["UI designer", "界面设计师", "Please send it to the UI designer."],
+      ["data analyst", "数据分析师", "The data analyst is checking the numbers."],
+      ["data scientist", "数据科学家", "This role needs a data scientist."],
+      ["business analyst", "业务分析师", "The business analyst will map the process."],
+      ["QA engineer", "测试工程师", "The QA engineer found one bug."],
+      ["DevOps", "运维开发", "DevOps will help with the release."],
+      ["helpdesk", "服务台", "Please open a ticket with the helpdesk."],
+      ["implementation consultant", "实施顾问", "This is an implementation consultant role."],
+      ["solution architect", "解决方案架构师", "The solution architect will join the call."]
+    ]
   }
 ];
 

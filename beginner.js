@@ -89,7 +89,20 @@ const WORDS = [
  ['2FA / MFA / SSO','二次验证／单点登录','登录保护。丢手机或电脑要立刻找 IT。'],
  ['Helpdesk','IT 服务台','账号、电脑、权限问题通常先提单，不要只在群里@一次。'],
  ['Core hours','核心在岗时段','混合办公时，这段时间要能开会或及时回复。'],
- ['Calendar conflict','日程冲突','两个会重叠时，说明冲突，并请改期、录屏或请人代听。']
+ ['Calendar conflict','日程冲突','两个会重叠时，说明冲突，并请改期、录屏或请人代听。'],
+ ['JD / Job description','职位描述','招聘启事里对职责和任职要求的说明。投简历前先对照自己是否大致符合，不必每条都完美。'],
+ ['Job title','职位名称','如 Sales Coordinator、HR Intern。同一名称在不同公司职责可能差很多，要以 JD 为准。'],
+ ['Hiring manager','用人经理','这个岗位的直属上司，通常参加面试并决定录用。'],
+ ['Recruiter / TA','招聘／人才获取','HR 里做招聘的同事。TA 是 Talent Acquisition。投递后对方常先做初筛。'],
+ ['Reporting line','汇报线','你向谁汇报。JD 里常见 Report to the Sales Manager。'],
+ ['Direct report','下属','向你汇报的人。带人经理才有 direct reports。'],
+ ['IC / Individual contributor','个人贡献者','自己做事、不带团队。和 people manager（带人经理）相对。'],
+ ['Grade / Band / Level','职级','公司内部级别。Junior / Senior 只是大致说法，具体以职级体系为准。'],
+ ['Must-have / Nice-to-have','硬性要求／加分项','Must-have 通常要具备；nice-to-have 没有也可以投。'],
+ ['Screening','初筛','电话或短视频，确认基本条件和沟通。通过后才进正式面试。'],
+ ['Shortlist','进入复试名单','从候选人里筛出进入下一轮的人。'],
+ ['Offer / Offer letter','录用通知','书面录用条件，常含职位、薪资、入职日。没收到 offer 前不要默认已被录用。'],
+ ['Background check','背景调查','入职前核验学历、工作和身份。按通知准备材料即可。']
 ];
 let lessonIndex = 0, lessonPassed = false;
 let completedLessons = [];
