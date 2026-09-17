@@ -50,7 +50,46 @@ const WORDS = [
  ['OKR','目标与关键结果','Objectives and Key Results。先问清你的目标和如何衡量，不要只背缩写。'],
  ['FTE / Headcount','全职编制／人数','FTE 是全职人力；headcount 常指团队编制。招聘和预算时会听到。'],
  ['Vendor','供应商／外包方','外部合作公司。对接前确认谁是内部对接人，以及信息能否外发。'],
- ['All-hands','全员会','公司或部门面向大家的会，通常同步业务进展和重要变化。']
+ ['All-hands','全员会','公司或部门面向大家的会，通常同步业务进展和重要变化。'],
+ ['Town hall','全员问答会','更偏问答。是否必须参加、会不会录像，以团队通知为准。'],
+ ['Offsite','外出集中开会','团队离开日常办公室开几天会对齐。先问是否必须到场、费用怎么报。'],
+ ['Cadence','固定节奏','weekly cadence 表示每周固定同步，改期要提前说。'],
+ ['Recurring meeting','周期会议','日历里重复出现的会。不去也要回复，或请人代听并补笔记。'],
+ ['Parking lot','会后另议','先记下来、会后处理，避免把会开飞。'],
+ ['Touch base','简单对一下','短同步，不是正式汇报。'],
+ ['Flag','提出风险或提醒','I want to flag a risk 是提前说隐患，不是指责。'],
+ ['Push back','有礼貌地反对','说明原因和替代方案，不要只说 no。'],
+ ['Buy-in','认同／支持','关键人还没同意时，先对齐再开工。'],
+ ['Offline','会下单独聊','Let’s take this offline 表示这个细节不占用全员时间。'],
+ ['Deep dive','深入讨论','和高 level 相对，会花更长时间看细节。'],
+ ['High-level','先讲大图','先说结论和影响，细节放后面或附件。'],
+ ['Actionable','可执行的','反馈要能变成下一步，而不是只说“不好”。'],
+ ['Dependency','依赖项','你要等别人完成才能继续。汇报时说清等谁、等到什么时候。'],
+ ['Workaround','权宜之计','先绕过问题，再修根因。要说明这不是最终方案。'],
+ ['Root cause / RCA','根因／根因分析','不只修表面。RCA 是把原因和下一步写清楚。'],
+ ['Sign-off','签字确认','对方确认可以按此版本推进。没确认不要当成已批准。'],
+ ['Handover / Handoff','交接','换人或请假前，把状态、文件、风险和下一步写清楚。'],
+ ['Playbook','操作手册','团队做事的标准步骤，比只靠口头传授更稳。'],
+ ['Template','模板','先套模板再改，少从空白页开始。'],
+ ['Expense / Reimburse','报销','先看差旅和报销政策，留好发票和事由。'],
+ ['Invoice','发票／账单','对外收款或付款凭证。不要和个人报销单混用。'],
+ ['Budget','预算','可能超预算时先对齐，不要先花再报。'],
+ ['Travel request','出差申请','出发前走申请，不要先订再补。'],
+ ['Notice period','离职通知期','离职需提前多久，以合同和当地政策为准。'],
+ ['Contractor','合同工／外包同事','合作方式与全职不同。权限和资料外发要先问清楚。'],
+ ['Performance review','绩效评估','回顾目标、结果和下一步。周期和表格因公司而异。'],
+ ['DRI','直接负责人','Directly Responsible Individual。一件事最终由谁负责。'],
+ ['SME','业务专家','Subject matter expert。细节问题找对口的人，不要猜。'],
+ ['MVP','最小可用版本','先交付能用的最小范围，再迭代。'],
+ ['UAT','用户验收测试','上线前请使用方按真实场景试一遍。'],
+ ['QA','质量检查','发布前找问题。你可能要配合复现和验证。'],
+ ['PFA','附件见','Please find attached。正文仍要写清附件是什么、请对方做什么。'],
+ ['EOW','本周末前','End of week。不同地区周末起点不同，最好写成日期。'],
+ ['FAQ','常见问题','先搜 FAQ 或文档，再问已经写过的问题。'],
+ ['2FA / MFA / SSO','二次验证／单点登录','登录保护。丢手机或电脑要立刻找 IT。'],
+ ['Helpdesk','IT 服务台','账号、电脑、权限问题通常先提单，不要只在群里@一次。'],
+ ['Core hours','核心在岗时段','混合办公时，这段时间要能开会或及时回复。'],
+ ['Calendar conflict','日程冲突','两个会重叠时，说明冲突，并请改期、录屏或请人代听。']
 ];
 let lessonIndex = 0, lessonPassed = false;
 let completedLessons = [];
@@ -78,7 +117,9 @@ function finishLesson() {
 function renderWords(){
  const q=document.getElementById('wordSearch').value.trim().toLowerCase();
  const words=WORDS.filter(w=>w.join(' ').toLowerCase().includes(q));
- document.getElementById('wordList').innerHTML=words.length?words.map(w=>`<article class="card"><h3>${w[0]}</h3><strong>${w[1]}</strong><p class="muted">${w[2]}</p><button class="btn ghost" type="button" onclick="speakEnglish(${JSON.stringify(w[0].split(' / ')[0])})">▶ 听词</button></article>`).join(''):'<p>没有找到。试试“对齐”“请假”“远程”或“OKR”。</p>';
+ const bar=typeof speakEngineButtons==="function"?`<div class="toolbar" style="grid-column:1/-1">${speakEngineButtons()}</div>`:"";
+ const cards=words.length?words.map(w=>`<article class="card"><h3>${w[0]}</h3><strong>${w[1]}</strong><p class="muted">${w[2]}</p><button class="btn ghost" type="button" onclick="speakEnglish(${JSON.stringify(w[0])})">▶ 听词</button></article>`).join(""):'<p style="grid-column:1/-1">没有找到。试试“对齐”“请假”“远程”或“OKR”。</p>';
+ document.getElementById('wordList').innerHTML=bar+cards;
 }
 document.getElementById('wordSearch').addEventListener('input',renderWords);
 showLesson(0);renderWords();

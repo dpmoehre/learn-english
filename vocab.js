@@ -14,7 +14,9 @@ const VOCAB_LISTS = [
       ["manager", "经理 / 主管", "Please ask your manager."],
       ["HR", "人力资源", "You can ask HR about this."],
       ["department", "部门", "Which department are you in?"],
-      ["full-time", "全职", "This is a full-time role."]
+      ["full-time", "全职", "This is a full-time role."],
+      ["contractor", "合同工", "He is a contractor on this project."],
+      ["part-time", "兼职", "This is a part-time role."]
     ]
   },
   {
@@ -50,7 +52,9 @@ const VOCAB_LISTS = [
       ["available", "有空的", "Would you be available tomorrow?"],
       ["invite", "邀请", "I’ll send a calendar invite."],
       ["standup", "站会", "We have a standup at 10."],
-      ["takeaway", "会议要点", "What’s the key takeaway?"]
+      ["takeaway", "会议要点", "What’s the key takeaway?"],
+      ["recurring", "周期性的", "It’s a recurring meeting."],
+      ["offline", "会下聊", "Let’s take this offline."]
     ]
   },
   {
@@ -86,7 +90,9 @@ const VOCAB_LISTS = [
       ["CC", "抄送", "I’ll CC my manager."],
       ["please", "请", "Could you please confirm?"],
       ["BCC", "密送", "I will BCC myself."],
-      ["reply", "回复", "I’ll reply this afternoon."]
+      ["reply", "回复", "I’ll reply this afternoon."],
+      ["thread", "邮件串", "Please keep it in this thread."],
+      ["inbox", "收件箱", "I will check my inbox now."]
     ]
   },
   {
@@ -104,7 +110,9 @@ const VOCAB_LISTS = [
       ["ETA", "预计完成时间", "What’s your ETA?"],
       ["by", "不晚于", "Please send it by 5pm."],
       ["reschedule", "改期", "Can we reschedule the meeting?"],
-      ["postpone", "推迟", "We may postpone the launch."]
+      ["postpone", "推迟", "We may postpone the launch."],
+      ["timeline", "时间线", "What’s the timeline?"],
+      ["quarter", "季度", "This is for this quarter."]
     ]
   },
   {
@@ -194,7 +202,11 @@ const VOCAB_LISTS = [
       ["SOP", "标准流程", "Please follow the SOP."],
       ["NDA", "保密协议", "Please sign the NDA first."],
       ["POC", "对接人", "I’m the POC for this."],
-      ["FTE", "全职编制", "This role is one FTE."]
+      ["FTE", "全职编制", "This role is one FTE."],
+      ["EOW", "本周末前", "Please send it by EOW."],
+      ["PFA", "附件见", "PFA the latest draft."],
+      ["FAQ", "常见问题", "Please check the FAQ first."],
+      ["MVP", "最小可用版本", "Let’s ship an MVP first."]
     ]
   },
   {
@@ -230,7 +242,99 @@ const VOCAB_LISTS = [
       ["mentor", "导师", "My mentor can help with this."],
       ["buddy", "入职搭档", "My buddy showed me the process."],
       ["report to", "向…汇报", "I report to Alex."],
-      ["onboarding", "入职适应", "Onboarding is in the first week."]
+      ["onboarding", "入职适应", "Onboarding is in the first week."],
+      ["helpdesk", "IT 服务台", "I sent a ticket to the helpdesk."],
+      ["2FA", "二次验证", "I need help with 2FA."]
+    ]
+  },
+  {
+    id: "office",
+    title: "办公日程",
+    words: [
+      ["calendar", "日历", "I put it on my calendar."],
+      ["book", "预订", "Can we book a room?"],
+      ["conflict", "冲突", "I have a calendar conflict."],
+      ["accept", "接受邀请", "I will accept the invite."],
+      ["decline", "拒绝邀请", "I have to decline this one."],
+      ["tentative", "暂定", "I marked it as tentative."],
+      ["overtime", "加班", "I cannot do overtime tonight."],
+      ["leave", "请假", "I will take leave on Monday."],
+      ["sick leave", "病假", "I’m on sick leave today."],
+      ["holiday", "假日", "Friday is a public holiday."],
+      ["core hours", "核心在岗时段", "Our core hours are 10 to 4."],
+      ["coverage", "顶班／覆盖", "Who can provide coverage?"]
+    ]
+  },
+  {
+    id: "docs",
+    title: "文档与交接",
+    words: [
+      ["template", "模板", "Please use this template."],
+      ["checklist", "清单", "I made a short checklist."],
+      ["handover", "交接", "I’ll send the handover notes."],
+      ["playbook", "操作手册", "The playbook is in the folder."],
+      ["wiki", "内部文档", "I posted it on the wiki."],
+      ["final", "最终版", "This is the final version."],
+      ["revise", "修改", "I’ll revise it tonight."],
+      ["approve", "批准", "Could you approve this?"],
+      ["sign-off", "签字确认", "We need sign-off by Friday."],
+      ["highlight", "标出重点", "I highlighted the changes."],
+      ["track", "跟踪", "Let’s track the open items."],
+      ["archive", "归档", "Please archive the old file."]
+    ]
+  },
+  {
+    id: "money",
+    title: "报销与差旅",
+    words: [
+      ["expense", "费用／报销", "I submitted my expenses."],
+      ["reimburse", "报销付款", "Can you reimburse this?"],
+      ["receipt", "收据", "I kept the receipt."],
+      ["invoice", "账单", "Please check the invoice."],
+      ["budget", "预算", "Is this in the budget?"],
+      ["claim", "提交报销", "I’ll claim it this week."],
+      ["travel", "出差", "I have travel next week."],
+      ["policy", "政策", "Please follow the travel policy."],
+      ["finance", "财务", "I’ll ask finance about this."],
+      ["approval", "审批", "It is waiting for approval."],
+      ["book a flight", "订机票", "Should I book a flight?"],
+      ["per diem", "出差补贴", "What is the per diem?"]
+    ]
+  },
+  {
+    id: "talk",
+    title: "会议口头禅",
+    words: [
+      ["high-level", "先讲大图", "I’ll give a high-level update."],
+      ["deep dive", "深入讨论", "We can deep dive later."],
+      ["touch base", "对一下", "Can we touch base tomorrow?"],
+      ["flag", "提出提醒", "I want to flag one risk."],
+      ["push back", "礼貌反对", "I need to push back on this."],
+      ["buy-in", "认同支持", "We still need their buy-in."],
+      ["park it", "先放下", "Let’s park it for now."],
+      ["actionable", "可执行的", "Please make it actionable."],
+      ["visibility", "可见度", "We need more visibility."],
+      ["dependency", "依赖项", "There is one dependency."],
+      ["workaround", "权宜之计", "This is only a workaround."],
+      ["ownership", "负责到底", "Who has ownership of this?"]
+    ]
+  },
+  {
+    id: "moreabbr",
+    title: "缩写再补",
+    words: [
+      ["SME", "业务专家", "Let’s ask the SME."],
+      ["DRI", "直接负责人", "Who is the DRI?"],
+      ["UAT", "用户验收测试", "UAT starts on Monday."],
+      ["QA", "质量检查", "QA found one issue."],
+      ["RCA", "根因分析", "I’ll write a short RCA."],
+      ["TIA", "先谢谢", "Please review this, TIA."],
+      ["SSO", "单点登录", "I can’t use SSO today."],
+      ["MFA", "多重验证", "MFA is not working."],
+      ["FAQ", "常见问题", "The answer is in the FAQ."],
+      ["EOW", "本周末前", "I can finish it by EOW."],
+      ["PFA", "附件见", "PFA the meeting notes."],
+      ["Q1", "第一季度", "This is a Q1 target."]
     ]
   }
 ];

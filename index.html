@@ -231,7 +231,7 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
     </section>
     <section id="workplace">
       <h2>外企常见词，用中文讲明白</h2>
-      <p class="muted">不同公司、国家和团队的习惯会不同；这里是常见例子。遇到不确定的规则，问经理或 HR。</p>
+      <p class="muted">不同公司、国家和团队的习惯会不同；这里是常见例子。遇到不确定的规则，问经理或 HR。点「听词」可听英文说法；缩写会按字母读，例如 F Y I。没声音时切换系统朗读或网络发音。</p>
       <label for="wordSearch">搜索英文缩写或中文意思</label>
       <input id="wordSearch" type="search" placeholder="试试：HR、截止、会议" />
       <div id="wordList" class="grid g2" style="margin-top:16px"></div>
@@ -367,6 +367,21 @@ function normalizeSpeakText(text) {
     .trim();
 }
 
+function speakableText(text) {
+  let t = normalizeSpeakText(text);
+  if (!t) return "";
+  if (/^1\s*:\s*1$/.test(t)) return "one-on-one";
+  t = t.replace(/\s*[\/／]\s*/g, ", ");
+  return t.split(",").map((part) => {
+    part = part.trim();
+    if (/^1\s*:\s*1$/.test(part)) return "one-on-one";
+    if (/^[A-Z]{2,6}$/.test(part)) return part.split("").join(" ");
+    if (/^[0-9][A-Z]{1,5}$/.test(part)) return part.split("").join(" ");
+    if (/^[A-Z][0-9]$/.test(part)) return part.split("").join(" ");
+    return part;
+  }).join(". ");
+}
+
 function isIPhone() {
   return /iPhone/.test(navigator.userAgent);
 }
@@ -487,7 +502,7 @@ function speakWithAudio(text, onFail) {
       showSpeakLive("");
     };
     audio.onloadedmetadata = () => {
-      if (Number.isFinite(audio.duration) && audio.duration > 0 && audio.duration < 0.3) fail();
+      if (Number.isFinite(audio.duration) && audio.duration > 0 && audio.duration < 0.08) fail();
     };
     audio.src = urls[index];
     const play = audio.play();
@@ -528,7 +543,7 @@ function speakWithBrowser(text, onFail) {
 }
 
 function speakEnglish(text) {
-  text = normalizeSpeakText(text);
+  text = speakableText(text);
   if (!text) return;
   const failed = () => {
     alert("这句暂时没播出来。请调大音量，或把上面的发音改成「系统朗读」或「网络发音」后再点一次。");
