@@ -548,10 +548,10 @@ function renderVocab() {
       <strong>${w.zh}</strong>
       <p class="english" lang="en">${w.ex}</p>
       <div class="toolbar">
-        <button class="btn ghost" type="button" onclick="speakEnglish(${JSON.stringify(w.en)})">▶ 听单词</button>
-        <button class="btn ghost" type="button" onclick="speakEnglish(${JSON.stringify(w.ex)})">▶ 听例句</button>
-        <button class="btn ghost" type="button" onclick="markVocab(${JSON.stringify(w.en)}, 'again')">还不熟</button>
-        <button class="btn olive" type="button" onclick="markVocab(${JSON.stringify(w.en)}, 'known')">我会了</button>
+        <button class="btn ghost" type="button" data-speak="${encodeURIComponent(w.en)}" onclick="speakFromButton(this)">▶ 听单词</button>
+        <button class="btn ghost" type="button" data-speak="${encodeURIComponent(w.ex)}" onclick="speakFromButton(this)">▶ 听例句</button>
+        <button class="btn ghost" type="button" data-speak="${encodeURIComponent(w.en)}" onclick="markVocab(decodeURIComponent(this.dataset.speak), 'again')">还不熟</button>
+        <button class="btn olive" type="button" data-speak="${encodeURIComponent(w.en)}" onclick="markVocab(decodeURIComponent(this.dataset.speak), 'known')">我会了</button>
       </div>
     </article>`;
   }).join("") : '<p>没有找到。换个主题，或搜“邮件”“截止”“会议”。</p>';

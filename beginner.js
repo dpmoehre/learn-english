@@ -130,9 +130,8 @@ function finishLesson() {
 function renderWords(){
  const q=document.getElementById('wordSearch').value.trim().toLowerCase();
  const words=WORDS.filter(w=>w.join(' ').toLowerCase().includes(q));
- const bar=typeof speakEngineButtons==="function"?`<div class="toolbar" style="grid-column:1/-1">${speakEngineButtons()}</div>`:"";
- const cards=words.length?words.map(w=>`<article class="card"><h3>${w[0]}</h3><strong>${w[1]}</strong><p class="muted">${w[2]}</p><button class="btn ghost" type="button" onclick="speakEnglish(${JSON.stringify(w[0])})">▶ 听词</button></article>`).join(""):'<p style="grid-column:1/-1">没有找到。试试“对齐”“请假”“远程”或“OKR”。</p>';
- document.getElementById('wordList').innerHTML=bar+cards;
+ const cards=words.length?words.map(w=>`<article class="card"><h3>${w[0]}</h3><strong>${w[1]}</strong><p class="muted">${w[2]}</p><button class="btn ghost" type="button" data-speak="${encodeURIComponent(w[0])}" onclick="speakFromButton(this)">▶ 听词</button></article>`).join(""):'<p style="grid-column:1/-1">没有找到。试试“对齐”“请假”“远程”或“OKR”。</p>';
+ document.getElementById('wordList').innerHTML=cards;
 }
 document.getElementById('wordSearch').addEventListener('input',renderWords);
 showLesson(0);renderWords();

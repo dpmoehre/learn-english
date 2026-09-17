@@ -7,7 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="英语学习台" />
   <meta name="theme-color" content="#f4efe6" />
-  <link rel="manifest" href="manifest.json" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <link rel="manifest" href="manifest.json?v=20260917f" />
   <style>
     :root {
       --ink: #1c2430;
@@ -231,7 +232,7 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
     </section>
     <section id="workplace">
       <h2>外企常见词，用中文讲明白</h2>
-      <p class="muted">不同公司、国家和团队的习惯会不同；这里是常见例子。遇到不确定的规则，问经理或 HR。点「听词」可听英文说法；缩写会按字母读，例如 F Y I。没声音时切换系统朗读或网络发音。</p>
+      <p class="muted">点「听词」播放本页自带的单词录音。版本 20260917f：标题下面若还写着「缩写会按字母读」或还有「系统朗读 / 网络发音」按钮，就是旧页面，请关掉所有标签再打开新链接。</p>
       <label for="wordSearch">搜索英文缩写或中文意思</label>
       <input id="wordSearch" type="search" placeholder="试试：HR、截止、会议" />
       <div id="wordList" class="grid g2" style="margin-top:16px"></div>
@@ -241,7 +242,7 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
       <h2>单词表：先听，再说，再标会了</h2>
       <p class="muted">按主题记常用词。每张卡都有中文、例句和朗读。标「我会了」或「还不熟」，方便下次只练不会的。没声音时，到新人课程里切换「系统朗读」或「网络发音」。</p>
       <label for="vocabSearch">搜索英文或中文</label>
-      <input id="vocabSearch" type="search" placeholder="试试：deadline、同事、邮件" />
+      <input id="vocabSearch" type="search" placeholder="试试：deadline、职位、面试" />
       <div class="toolbar" id="vocabTabs" aria-label="单词表主题"></div>
       <p id="vocabStatus" class="muted" role="status"></p>
       <div id="vocabList" class="grid g2"></div>
@@ -351,6 +352,7 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
     </section>
 
     <footer>进度保存在你正在用的这台手机或电脑的浏览器里。Safari 可「添加到主屏幕」，之后像 App 一样打开。</footer>
+    <audio id="speakPlayer" playsinline webkit-playsinline preload="auto" style="position:absolute;width:1px;height:1px;opacity:0.01;pointer-events:none"></audio>
   </div>
 
 <script>
@@ -455,28 +457,50 @@ function speakRate() {
   return Number(document.getElementById("voiceRate")?.value || 0.85);
 }
 
-function youdaoVoiceUrl(text) {
-  return "https://dict.youdao.com/dictvoice?le=en&type=2&audio=" + encodeURIComponent(text);
+function isDictClip(text) {
+  const raw = normalizeSpeakText(text);
+  if (!raw) return false;
+  if (/[.!?。！？]/.test(raw)) return false;
+  return raw.length <= 32;
 }
 
-function baiduVoiceUrl(text) {
-  const spd = speakRate() <= 0.75 ? 2 : 3;
-  return `https://fanyi.baidu.com/gettts?lan=en&text=${encodeURIComponent(text)}&spd=${spd}&source=web`;
+function dictSlug(word) {
+  return String(word || "").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "word";
+}
+
+function localDictUrl(word) {
+  return "audio/dict/" + dictSlug(word) + ".m4a";
+}
+
+function getSpeakPlayer() {
+  let audio = document.getElementById("speakPlayer");
+  if (!audio) {
+    audio = document.createElement("audio");
+    audio.id = "speakPlayer";
+    audio.setAttribute("playsinline", "");
+    audio.setAttribute("webkit-playsinline", "");
+    audio.playsInline = true;
+    audio.preload = "auto";
+    audio.controls = false;
+    audio.style.cssText = "position:fixed;left:8px;bottom:8px;width:1px;height:1px;opacity:0.02;z-index:1";
+    document.body.appendChild(audio);
+  }
+  return audio;
 }
 
 function stopSpeakAudio() {
-  (window.__speakPlayers || []).forEach((audio) => {
+  const audio = document.getElementById("speakPlayer");
+  if (audio) {
     audio.onplaying = null;
     audio.onended = null;
     audio.onerror = null;
-    audio.pause();
-  });
-  window.__speakPlayers = [];
+    try { audio.pause(); } catch (e) {}
+  }
   speakAudio = null;
 }
 
 function startBrowserSpeech(text) {
-  if (!window.speechSynthesis) return;
+  if (!window.speechSynthesis || !text) return false;
   if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
   const spoken = text.length < 12 ? `${text}. ${text}.` : text;
   const u = new SpeechSynthesisUtterance(spoken);
@@ -498,54 +522,60 @@ function startBrowserSpeech(text) {
     }
     try { speechSynthesis.resume(); } catch (e) {}
   }, 400);
+  return true;
 }
 
-function startNetworkSounds(spoken, compact) {
-  const urls = [youdaoVoiceUrl(compact)];
-  if (compact && spoken && compact !== spoken) urls.push(youdaoVoiceUrl(spoken));
-  if (spoken && spoken.length > 12) urls.push(baiduVoiceUrl(spoken));
-  window.__speakPlayers = [];
-  let won = false;
-  urls.forEach((url) => {
-    const audio = new Audio();
-    audio.referrerPolicy = "no-referrer";
-    audio.setAttribute("referrerpolicy", "no-referrer");
-    audio.setAttribute("playsinline", "true");
-    audio.playsInline = true;
-    audio.preload = "auto";
-    audio.onplaying = () => {
-      if (won) {
-        audio.pause();
-        return;
-      }
-      won = true;
-      speakAudio = audio;
-      (window.__speakPlayers || []).forEach((other) => {
-        if (other !== audio) other.pause();
-      });
-      if (window.speechSynthesis) speechSynthesis.cancel();
-    };
-    audio.onended = () => {
-      if (speakAudio === audio) {
-        speakAudio = null;
-        showSpeakLive("");
-      }
-    };
+function playLocalDict(word) {
+  const audio = getSpeakPlayer();
+  try { audio.pause(); } catch (e) {}
+  audio.muted = false;
+  audio.defaultMuted = false;
+  audio.volume = 1;
+  audio.onplaying = () => {
+    speakAudio = audio;
+    showSpeakLive("");
+  };
+  audio.onended = () => {
+    if (speakAudio === audio) speakAudio = null;
+    showSpeakLive("");
+  };
+  audio.onerror = () => {
+    showSpeakLive("这条录音还没准备好");
+  };
+  const url = localDictUrl(word);
+  if (audio.dataset.dictWord === word && audio.readyState >= 2) {
+    try { audio.currentTime = 0; } catch (e) {}
+  } else {
+    audio.dataset.dictWord = word;
     audio.src = url;
-    const play = audio.play();
-    if (play && play.catch) play.catch(() => {});
-    window.__speakPlayers.push(audio);
-  });
+  }
+  speakAudio = audio;
+  const play = audio.play();
+  if (play && play.catch) {
+    play.catch(() => {
+      showSpeakLive("请再点一次听词");
+    });
+  }
 }
 
 function speakEnglish(text) {
   const spoken = speakableText(text);
   const compact = compactDictWord(text);
   if (!spoken && !compact) return;
+  if (isDictClip(text)) {
+    showSpeakLive("正在播放 " + (compact || spoken));
+    playLocalDict(compact || spoken);
+    return;
+  }
   stopSpeakAudio();
   showSpeakLive("正在朗读…");
   startBrowserSpeech(spoken || compact);
-  startNetworkSounds(spoken || compact, compact || spoken);
+}
+
+function speakFromButton(btn) {
+  try {
+    speakEnglish(decodeURIComponent(btn.dataset.speak || ""));
+  } catch (e) {}
 }
 
 const SCENES = [
@@ -1016,8 +1046,8 @@ setupPlan();
 drawSpeak();
 saveProgress();
 </script>
-<script src="beginner.js"></script>
-<script src="vocab.js"></script>
-<script src="experience.js"></script>
+<script src="beginner.js?v=20260917f"></script>
+<script src="vocab.js?v=20260917f"></script>
+<script src="experience.js?v=20260917f"></script>
 </body>
 </html>
