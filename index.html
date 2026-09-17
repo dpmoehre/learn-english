@@ -382,6 +382,13 @@ function speakableText(text) {
   }).join(". ");
 }
 
+function compactDictWord(text) {
+  const t = normalizeSpeakText(text);
+  if (!t) return "";
+  if (/^1\s*:\s*1$/.test(t)) return "one-on-one";
+  return t.split(/\s*[\/／]\s*/)[0].trim();
+}
+
 function isIPhone() {
   return /iPhone/.test(navigator.userAgent);
 }
@@ -444,92 +451,43 @@ function showSpeakLive(msg) {
   el.textContent = msg || "";
 }
 
-function stopSpeakAudio() {
-  if (!speakAudio) return;
-  speakAudio.onended = null;
-  speakAudio.onerror = null;
-  speakAudio.onloadedmetadata = null;
-  speakAudio.pause();
-  speakAudio.removeAttribute("src");
-  speakAudio.load();
-  speakAudio = null;
-}
-
 function speakRate() {
   return Number(document.getElementById("voiceRate")?.value || 0.85);
 }
 
-function networkTtsUrls(text) {
-  const q = encodeURIComponent(text);
+function youdaoVoiceUrl(text) {
+  return "https://dict.youdao.com/dictvoice?le=en&type=2&audio=" + encodeURIComponent(text);
+}
+
+function baiduVoiceUrl(text) {
   const spd = speakRate() <= 0.75 ? 2 : 3;
-  return [
-    `https://fanyi.baidu.com/gettts?lan=en&text=${q}&spd=${spd}&source=web`,
-    `https://dict.youdao.com/dictvoice?le=en&type=2&audio=${q}`
-  ];
+  return `https://fanyi.baidu.com/gettts?lan=en&text=${encodeURIComponent(text)}&spd=${spd}&source=web`;
 }
 
-function speakWithAudio(text, onFail) {
-  stopSpeakAudio();
-  if (window.speechSynthesis) window.speechSynthesis.cancel();
-  const urls = networkTtsUrls(text);
-  let index = 0;
-
-  const tryUrl = () => {
-    if (index >= urls.length) {
-      showSpeakLive("");
-      if (onFail) onFail();
-      return;
-    }
-    const audio = new Audio();
-    audio.referrerPolicy = "no-referrer";
-    audio.setAttribute("referrerpolicy", "no-referrer");
-    audio.setAttribute("playsinline", "true");
-    audio.playsInline = true;
-    speakAudio = audio;
-    showSpeakLive("正在朗读…");
-    const fail = () => {
-      if (speakAudio !== audio) return;
-      audio.onended = null;
-      audio.onerror = null;
-      audio.onloadedmetadata = null;
-      speakAudio = null;
-      index += 1;
-      tryUrl();
-    };
-    audio.onerror = fail;
-    audio.onended = () => {
-      if (speakAudio === audio) speakAudio = null;
-      showSpeakLive("");
-    };
-    audio.onloadedmetadata = () => {
-      if (Number.isFinite(audio.duration) && audio.duration > 0 && audio.duration < 0.08) fail();
-    };
-    audio.src = urls[index];
-    const play = audio.play();
-    if (play && play.catch) play.catch(fail);
-  };
-
-  tryUrl();
+function stopSpeakAudio() {
+  (window.__speakPlayers || []).forEach((audio) => {
+    audio.onplaying = null;
+    audio.onended = null;
+    audio.onerror = null;
+    audio.pause();
+  });
+  window.__speakPlayers = [];
+  speakAudio = null;
 }
 
-function speakWithBrowser(text, onFail) {
-  if (!window.speechSynthesis) {
-    if (onFail) onFail();
-    return;
-  }
-  stopSpeakAudio();
+function startBrowserSpeech(text) {
+  if (!window.speechSynthesis) return;
   if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const spoken = text.length < 12 ? `${text}. ${text}.` : text;
+  const u = new SpeechSynthesisUtterance(spoken);
   u.lang = "en-US";
   u.rate = speakRate();
   const voice = pickEnglishVoice();
   if (voice) u.voice = voice;
-  u.onerror = () => { if (onFail) onFail(); };
   u.onend = () => {
     if (speakResumeTimer) clearInterval(speakResumeTimer);
-    showSpeakLive("");
+    if (!speakAudio || speakAudio.paused) showSpeakLive("");
   };
-  showSpeakLive("正在朗读…");
   speechSynthesis.speak(u);
   try { speechSynthesis.resume(); } catch (e) {}
   if (speakResumeTimer) clearInterval(speakResumeTimer);
@@ -542,21 +500,52 @@ function speakWithBrowser(text, onFail) {
   }, 400);
 }
 
+function startNetworkSounds(spoken, compact) {
+  const urls = [youdaoVoiceUrl(compact)];
+  if (compact && spoken && compact !== spoken) urls.push(youdaoVoiceUrl(spoken));
+  if (spoken && spoken.length > 12) urls.push(baiduVoiceUrl(spoken));
+  window.__speakPlayers = [];
+  let won = false;
+  urls.forEach((url) => {
+    const audio = new Audio();
+    audio.referrerPolicy = "no-referrer";
+    audio.setAttribute("referrerpolicy", "no-referrer");
+    audio.setAttribute("playsinline", "true");
+    audio.playsInline = true;
+    audio.preload = "auto";
+    audio.onplaying = () => {
+      if (won) {
+        audio.pause();
+        return;
+      }
+      won = true;
+      speakAudio = audio;
+      (window.__speakPlayers || []).forEach((other) => {
+        if (other !== audio) other.pause();
+      });
+      if (window.speechSynthesis) speechSynthesis.cancel();
+    };
+    audio.onended = () => {
+      if (speakAudio === audio) {
+        speakAudio = null;
+        showSpeakLive("");
+      }
+    };
+    audio.src = url;
+    const play = audio.play();
+    if (play && play.catch) play.catch(() => {});
+    window.__speakPlayers.push(audio);
+  });
+}
+
 function speakEnglish(text) {
-  text = speakableText(text);
-  if (!text) return;
-  const failed = () => {
-    alert("这句暂时没播出来。请调大音量，或把上面的发音改成「系统朗读」或「网络发音」后再点一次。");
-  };
-  if (getSpeakEngine() === "network") {
-    speakWithAudio(text, () => speakWithBrowser(text, failed));
-    return;
-  }
-  if (window.speechSynthesis) {
-    speakWithBrowser(text, () => speakWithAudio(text, failed));
-    return;
-  }
-  speakWithAudio(text, failed);
+  const spoken = speakableText(text);
+  const compact = compactDictWord(text);
+  if (!spoken && !compact) return;
+  stopSpeakAudio();
+  showSpeakLive("正在朗读…");
+  startBrowserSpeech(spoken || compact);
+  startNetworkSounds(spoken || compact, compact || spoken);
 }
 
 const SCENES = [
