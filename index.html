@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="英语学习台" />
   <meta name="theme-color" content="#f4efe6" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <link rel="manifest" href="manifest.json?v=20260917f" />
+  <link rel="manifest" href="manifest.json?v=20260917g" />
   <style>
     :root {
       --ink: #1c2430;
@@ -232,7 +232,7 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
     </section>
     <section id="workplace">
       <h2>外企常见词，用中文讲明白</h2>
-      <p class="muted">点「听词」播放本页自带的单词录音。版本 20260917f：标题下面若还写着「缩写会按字母读」或还有「系统朗读 / 网络发音」按钮，就是旧页面，请关掉所有标签再打开新链接。</p>
+      <p class="muted">点「听词」播放本页自带的单词录音。版本 20260917g：标题下面若还写着「缩写会按字母读」或还有「系统朗读 / 网络发音」按钮，就是旧页面，请关掉所有标签再打开新链接。</p>
       <label for="wordSearch">搜索英文缩写或中文意思</label>
       <input id="wordSearch" type="search" placeholder="试试：HR、截止、会议" />
       <div id="wordList" class="grid g2" style="margin-top:16px"></div>
@@ -465,11 +465,11 @@ function isDictClip(text) {
 }
 
 function dictSlug(word) {
-  return String(word || "").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "word";
+  return String(word || "").toLowerCase().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "word";
 }
 
 function localDictUrl(word) {
-  return "audio/dict/" + dictSlug(word) + ".m4a";
+  return "audio/dict/" + dictSlug(word) + ".m4a?v=20260917g";
 }
 
 function getSpeakPlayer() {
@@ -540,7 +540,8 @@ function playLocalDict(word) {
     showSpeakLive("");
   };
   audio.onerror = () => {
-    showSpeakLive("这条录音还没准备好");
+    showSpeakLive("正在用系统朗读…");
+    startBrowserSpeech(speakableText(word) || word);
   };
   const url = localDictUrl(word);
   if (audio.dataset.dictWord === word && audio.readyState >= 2) {
@@ -1046,8 +1047,8 @@ setupPlan();
 drawSpeak();
 saveProgress();
 </script>
-<script src="beginner.js?v=20260917f"></script>
-<script src="vocab.js?v=20260917f"></script>
-<script src="experience.js?v=20260917f"></script>
+<script src="beginner.js?v=20260917g"></script>
+<script src="vocab.js?v=20260917g"></script>
+<script src="experience.js?v=20260917g"></script>
 </body>
 </html>
