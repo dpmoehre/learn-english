@@ -239,7 +239,7 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
     <section id="vocab">
       <span class="pill">WORD LISTS · 职场高频</span>
       <h2>单词表：先听，再说，再标会了</h2>
-      <p class="muted">按主题记 8 组常用词。每张卡都有中文、例句和朗读。标「我会了」或「还不熟」，方便下次只练不会的。手机请调大音量；第一次点听需要联网。</p>
+      <p class="muted">按主题记常用词。每张卡都有中文、例句和朗读。标「我会了」或「还不熟」，方便下次只练不会的。没声音时，到新人课程里切换「系统朗读」或「网络发音」。</p>
       <label for="vocabSearch">搜索英文或中文</label>
       <input id="vocabSearch" type="search" placeholder="试试：deadline、同事、邮件" />
       <div class="toolbar" id="vocabTabs" aria-label="单词表主题"></div>
@@ -354,13 +354,43 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
   </div>
 
 <script>
-const SPEAK_AUDIO = "https://dict.youdao.com/dictvoice?le=en&type=2&audio=";
+const SPEAK_ENGINE_KEY = "speak-engine";
 let speakAudio = null;
 let speakVoices = [];
+let speakResumeTimer = null;
 
-function isAppleTouchDevice() {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent)
-    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function normalizeSpeakText(text) {
+  return String(text || "")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isIPhone() {
+  return /iPhone/.test(navigator.userAgent);
+}
+
+function getSpeakEngine() {
+  try {
+    const saved = localStorage.getItem(SPEAK_ENGINE_KEY);
+    if (saved === "system" || saved === "network") return saved;
+  } catch (e) {}
+  return isIPhone() ? "network" : "system";
+}
+
+function setSpeakEngine(mode) {
+  try { localStorage.setItem(SPEAK_ENGINE_KEY, mode); } catch (e) {}
+  document.querySelectorAll("[data-speak-engine]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", btn.dataset.speakEngine === mode ? "true" : "false");
+  });
+  showSpeakLive(mode === "network" ? "已改为网络发音，再点听一句" : "已改为系统朗读，再点听一句");
+  setTimeout(() => showSpeakLive(""), 1600);
+}
+
+function speakEngineButtons() {
+  const engine = getSpeakEngine();
+  return `<div class="toolbar" aria-label="发音方式"><span class="muted">发音</span><button class="btn ghost lesson-tab" type="button" data-speak-engine="system" aria-pressed="${engine === "system"}" onclick="setSpeakEngine('system')">系统朗读</button><button class="btn ghost lesson-tab" type="button" data-speak-engine="network" aria-pressed="${engine === "network"}" onclick="setSpeakEngine('network')">网络发音</button></div>`;
 }
 
 function refreshSpeakVoices() {
@@ -403,32 +433,68 @@ function stopSpeakAudio() {
   if (!speakAudio) return;
   speakAudio.onended = null;
   speakAudio.onerror = null;
+  speakAudio.onloadedmetadata = null;
   speakAudio.pause();
   speakAudio.removeAttribute("src");
   speakAudio.load();
   speakAudio = null;
 }
 
+function speakRate() {
+  return Number(document.getElementById("voiceRate")?.value || 0.85);
+}
+
+function networkTtsUrls(text) {
+  const q = encodeURIComponent(text);
+  const spd = speakRate() <= 0.75 ? 2 : 3;
+  return [
+    `https://fanyi.baidu.com/gettts?lan=en&text=${q}&spd=${spd}&source=web`,
+    `https://dict.youdao.com/dictvoice?le=en&type=2&audio=${q}`
+  ];
+}
+
 function speakWithAudio(text, onFail) {
   stopSpeakAudio();
   if (window.speechSynthesis) window.speechSynthesis.cancel();
-  const audio = new Audio(SPEAK_AUDIO + encodeURIComponent(text));
-  audio.setAttribute("playsinline", "true");
-  audio.playsInline = true;
-  speakAudio = audio;
-  showSpeakLive("正在朗读…");
-  const fail = () => {
-    if (speakAudio === audio) speakAudio = null;
-    showSpeakLive("");
-    if (onFail) onFail();
+  const urls = networkTtsUrls(text);
+  let index = 0;
+
+  const tryUrl = () => {
+    if (index >= urls.length) {
+      showSpeakLive("");
+      if (onFail) onFail();
+      return;
+    }
+    const audio = new Audio();
+    audio.referrerPolicy = "no-referrer";
+    audio.setAttribute("referrerpolicy", "no-referrer");
+    audio.setAttribute("playsinline", "true");
+    audio.playsInline = true;
+    speakAudio = audio;
+    showSpeakLive("正在朗读…");
+    const fail = () => {
+      if (speakAudio !== audio) return;
+      audio.onended = null;
+      audio.onerror = null;
+      audio.onloadedmetadata = null;
+      speakAudio = null;
+      index += 1;
+      tryUrl();
+    };
+    audio.onerror = fail;
+    audio.onended = () => {
+      if (speakAudio === audio) speakAudio = null;
+      showSpeakLive("");
+    };
+    audio.onloadedmetadata = () => {
+      if (Number.isFinite(audio.duration) && audio.duration > 0 && audio.duration < 0.3) fail();
+    };
+    audio.src = urls[index];
+    const play = audio.play();
+    if (play && play.catch) play.catch(fail);
   };
-  audio.onended = () => {
-    if (speakAudio === audio) speakAudio = null;
-    showSpeakLive("");
-  };
-  audio.onerror = fail;
-  const play = audio.play();
-  if (play && play.catch) play.catch(fail);
+
+  tryUrl();
 }
 
 function speakWithBrowser(text, onFail) {
@@ -437,23 +503,37 @@ function speakWithBrowser(text, onFail) {
     return;
   }
   stopSpeakAudio();
-  window.speechSynthesis.cancel();
+  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
-  u.rate = Number(document.getElementById("voiceRate")?.value || 0.85);
+  u.rate = speakRate();
   const voice = pickEnglishVoice();
   if (voice) u.voice = voice;
   u.onerror = () => { if (onFail) onFail(); };
-  window.speechSynthesis.speak(u);
-  try { window.speechSynthesis.resume(); } catch (e) {}
+  u.onend = () => {
+    if (speakResumeTimer) clearInterval(speakResumeTimer);
+    showSpeakLive("");
+  };
+  showSpeakLive("正在朗读…");
+  speechSynthesis.speak(u);
+  try { speechSynthesis.resume(); } catch (e) {}
+  if (speakResumeTimer) clearInterval(speakResumeTimer);
+  speakResumeTimer = setInterval(() => {
+    if (!speechSynthesis.speaking) {
+      clearInterval(speakResumeTimer);
+      return;
+    }
+    try { speechSynthesis.resume(); } catch (e) {}
+  }, 400);
 }
 
 function speakEnglish(text) {
+  text = normalizeSpeakText(text);
   if (!text) return;
   const failed = () => {
-    alert("这句暂时没播出来。请调大音量后再点一次；也可点 Safari 地址栏左侧的「啊」或「aA」，允许此网站播放声音。");
+    alert("这句暂时没播出来。请调大音量，或把上面的发音改成「系统朗读」或「网络发音」后再点一次。");
   };
-  if (isAppleTouchDevice()) {
+  if (getSpeakEngine() === "network") {
     speakWithAudio(text, () => speakWithBrowser(text, failed));
     return;
   }
