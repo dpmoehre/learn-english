@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>英语学习台 · Business English</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="英语学习台" />
+  <meta name="theme-color" content="#f4efe6" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --ink: #1c2430;
+      --ink-soft: #4a5564;
+      --paper: #f4efe6;
+      --card: #fffdf8;
+      --line: #d8cfc0;
+      --terracotta: #c45c26;
+      --olive: #3d6b4f;
+      --navy: #1e3a5f;
+      --gold: #c9a227;
+      --shadow: 0 10px 30px rgba(28, 36, 48, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Songti SC", "Noto Sans CJK SC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #fff8ec 0%, transparent 50%),
+        var(--paper);
+    }
+    button, input, select, textarea {
+      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    }
+    a { color: var(--navy); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 80px; }
+    header.top {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(244, 239, 230, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav {
+      max-width: 1080px; margin: 0 auto; padding: 12px 20px;
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .brand {
+      font-weight: 700; letter-spacing: 0.04em; margin-right: auto;
+    }
+    .brand small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 12px; }
+    .nav a, .nav button.link {
+      text-decoration: none; color: var(--ink);
+      background: none; border: 0; cursor: pointer;
+      font-size: 14px; padding: 6px 8px;
+    }
+    .pill {
+      display: inline-block; padding: 3px 9px; border-radius: 999px;
+      background: #efe4d2; color: var(--navy); font-size: 12px;
+      font-family: "Avenir Next", "PingFang SC", sans-serif;
+    }
+    h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.15; margin: 36px 0 8px; }
+    h2 { font-size: 28px; margin: 0 0 10px; }
+    h3 { margin: 0 0 8px; }
+    .lede { font-size: 18px; color: var(--ink-soft); max-width: 640px; }
+    section { padding: 48px 0 8px; }
+    .grid { display: grid; gap: 14px; }
+    .g2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .g4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .formula {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .formula .card { text-align: center; padding: 20px 10px; }
+    .formula b { display: block; font-size: 22px; color: var(--terracotta); }
+    .formula span { display: block; margin-top: 6px; color: var(--ink-soft); font-size: 14px; }
+    .plus {
+      display: none;
+    }
+    .scene {
+      cursor: pointer; min-height: 150px; transition: transform .15s ease;
+    }
+    .scene:hover { transform: translateY(-2px); }
+    .scene .no { color: var(--gold); font-family: "Avenir Next", sans-serif; font-size: 13px; }
+    .scene .en { color: var(--navy); font-size: 15px; margin-top: 8px; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+    .btn {
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn.olive { background: var(--olive); border-color: var(--olive); }
+    .muted { color: var(--ink-soft); font-size: 14px; }
+    .flip {
+      perspective: 900px; min-height: 220px;
+    }
+    .flip-inner {
+      position: relative; min-height: 220px;
+      transform-style: preserve-3d; transition: transform .45s;
+    }
+    .flip.on .flip-inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      padding: 22px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .back { transform: rotateY(180deg); background: #1e3a5f; color: #f7f1e6; }
+    .back .muted { color: #d5c7a8; }
+    label { display: block; font-size: 13px; color: var(--ink-soft); margin: 10px 0 4px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 15px;
+    }
+    textarea { min-height: 180px; resize: vertical; }
+    .mail-out {
+      white-space: pre-wrap;
+      background: #1c2430;
+      color: #f4efe6;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 180px;
+      font-family: "IBM Plex Mono", "SF Mono", monospace;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .timer {
+      font-size: 64px;
+      letter-spacing: 0.04em;
+      color: var(--navy);
+      margin: 8px 0;
+      font-family: "Avenir Next", sans-serif;
+    }
+    .prompt-box { font-size: 20px; line-height: 1.45; }
+    .q { margin-bottom: 14px; }
+    .opt {
+      display: block; width: 100%; text-align: left;
+      margin: 6px 0; padding: 10px 12px;
+      border: 1px solid var(--line); border-radius: 10px;
+      background: #fff; cursor: pointer;
+    }
+    .opt.good { border-color: var(--olive); background: #e8f3ec; }
+    .opt.bad { border-color: #a33; background: #fdecea; }
+    .progress {
+      height: 8px; background: #e6dccb; border-radius: 99px; overflow: hidden;
+    }
+    .progress > i { display: block; height: 100%; width: 0; background: var(--terracotta); }
+    footer { margin-top: 48px; color: var(--ink-soft); font-size: 13px; }
+    @media (max-width: 720px) {
+      .formula { grid-template-columns: 1fr 1fr; }
+      .timer { font-size: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="nav">
+      <div class="brand">英语学习台<small>专门用来练商务英语</small></div>
+      <a href="#map">骨架图</a>
+      <a href="#scenes">场景</a>
+      <a href="#cards">句卡</a>
+      <a href="#mail">邮件</a>
+      <a href="#speak">口语</a>
+      <a href="#quiz">测验</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section>
+      <span class="pill">办公室高频 · 每天 25 分钟</span>
+      <h1>先把 8 个场景练熟，<br>比背 500 个单词快。</h1>
+      <p class="lede">商务英语的标准不是华丽，是清楚、礼貌、可执行。这个手册把自我介绍、约会议、写邮件、汇报、提问、延期、会后总结做成可以点的工具。</p>
+      <div class="toolbar">
+        <button class="btn" onclick="location.hash='cards'">今天先刷 8 张句卡</button>
+        <button class="btn ghost" onclick="location.hash='mail'">生成一封邮件</button>
+        <button class="btn ghost" onclick="resetProgress()">清空进度</button>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <strong>今日进度</strong>
+            <div class="muted" id="progressText">还没开始。从骨架图看一眼就练。</div>
+          </div>
+          <div class="muted" id="dayHint">建议路线：图 → 句卡 → 邮件 → 60 秒口语</div>
+        </div>
+        <div class="progress" style="margin-top:12px"><i id="bar"></i></div>
+      </div>
+    </section>
+
+    <section id="map">
+      <h2>一张图记住全部骨架</h2>
+      <p class="muted">任何商务句子都按这四块拼：礼貌开头 + 把事情说清楚 + 明确动作 + 给出截止时间。</p>
+      <div class="formula">
+        <div class="card"><b>Polite</b><span>Could you / I hope you’re well</span></div>
+        <div class="card"><b>Clear</b><span>I’m writing about the Q3 report</span></div>
+        <div class="card"><b>Action</b><span>please review / confirm / send</span></div>
+        <div class="card"><b>Deadline</b><span>by Friday 5pm / before the meeting</span></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <strong>套一句就能用</strong>
+        <p>Could you please <u>send the latest version</u> by <u>Friday 5pm</u> so that we can <u>prepare for Monday’s meeting</u>?</p>
+        <p class="muted">把下划线三处换成你的内容，就是一封能发的邮件核心句。</p>
+      </div>
+    </section>
+
+    <section id="scenes">
+      <h2>8 个速成场景</h2>
+      <p class="muted">点开看中英对照和替换词。每个场景先记住 3 句就够用。</p>
+      <div class="grid g2" id="sceneGrid"></div>
+      <div class="card" id="sceneDetail" style="margin-top:14px; display:none"></div>
+    </section>
+
+    <section id="cards">
+      <h2>句卡：先中文，点一下看英文</h2>
+      <div class="toolbar">
+        <select id="cardScene"></select>
+        <button class="btn ghost" onclick="flipCard()">翻转</button>
+        <button class="btn ghost" onclick="speakCard(event)">朗读英文</button>
+        <button class="btn" onclick="nextCard()">下一张</button>
+        <span class="muted" id="cardCount"></span>
+      </div>
+      <div class="flip" id="flipBox" onclick="flipCard()">
+        <div class="flip-inner">
+          <div class="face front">
+            <div class="pill" id="cardTag">场景</div>
+            <h3 id="cardZh" style="margin-top:16px;font-size:28px">加载中</h3>
+            <p class="muted">点击卡片看英文</p>
+          </div>
+          <div class="face back">
+            <div class="pill">English</div>
+            <h3 id="cardEn" style="margin-top:16px;font-size:24px"></h3>
+            <p class="muted" id="cardTip"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mail">
+      <h2>邮件生成器</h2>
+      <p class="muted">填 4 个空，立刻得到一封能改能发的英文邮件。先生成，再自己改两个词，比从零写快。</p>
+      <div class="grid g2">
+        <div class="card">
+          <label>邮件类型</label>
+          <select id="mailType"></select>
+          <label>对方名字</label>
+          <input id="mailName" value="Alex" />
+          <label>事情 / 文件 / 会议</label>
+          <input id="mailThing" value="the weekly report" />
+          <label>希望对方做什么</label>
+          <input id="mailAction" value="review the attached draft" />
+          <label>截止日期</label>
+          <input id="mailWhen" value="Friday 5pm" />
+          <div class="toolbar">
+            <button class="btn olive" onclick="buildMail()">生成邮件</button>
+            <button class="btn ghost" onclick="copyMail()">复制</button>
+            <button class="btn ghost" onclick="speakMail()">朗读邮件</button>
+          </div>
+        </div>
+        <div>
+          <div class="mail-out" id="mailOut">点击左侧「生成邮件」。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="speak">
+      <h2>60 秒口语计时</h2>
+      <p class="muted">抽一道题，对着手机说 60 秒。卡壳就用骨架：今天更新什么 / 完成了什么 / 卡在哪 / 下一步是什么。</p>
+      <div class="card">
+        <div class="prompt-box" id="speakPrompt">点击开始，抽一道今日口语题。</div>
+        <div class="timer" id="speakTime">01:00</div>
+        <div class="toolbar">
+          <button class="btn" onclick="startSpeak()">开始 60 秒</button>
+          <button class="btn ghost" onclick="drawSpeak()">换一题</button>
+        </div>
+        <p class="muted">不会的词用简单词：problem, next step, I need help with, I’ll finish by Friday.</p>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <h2>10 题速测</h2>
+      <p class="muted">选更得体的那句。商务场合里，清楚 + 留余地，通常比直译中文更好。</p>
+      <div id="quizBox"></div>
+      <div class="toolbar">
+        <button class="btn" onclick="gradeQuiz()">交卷</button>
+        <span class="muted" id="quizResult"></span>
+      </div>
+    </section>
+
+    <section>
+      <h2>7 天路线</h2>
+      <div class="grid g2" id="plan"></div>
+    </section>
+
+    <footer>进度保存在你正在用的这台手机或电脑的浏览器里。Safari 可「添加到主屏幕」，之后像 App 一样打开。</footer>
+  </div>
+
+<script>
+function speakEnglish(text) {
+  if (!text || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = 0.92;
+  window.speechSynthesis.speak(u);
+}
+
+const SCENES = [
+  {
+    id: "intro", no: "01", title: "自我介绍", en: "Introduce yourself",
+    lines: [
+      ["我在团队里负责日程和材料整理。", "I support the team with scheduling and document preparation.", "support / handle / coordinate"],
+      ["很高兴认识你，我是行政部门的实习生。", "Nice to meet you. I’m an intern with the admin team.", "Nice to meet you 比 Glad to see you 更稳"],
+      ["有需要协调的事项可以直接找我。", "Please feel free to reach out if you need any coordination support.", "reach out = 联系"]
+    ]
+  },
+  {
+    id: "meet", no: "02", title: "约会议", en: "Set up a meeting",
+    lines: [
+      ["我们能否明天下午开个短会？", "Would you be available for a short meeting tomorrow afternoon?", "Would you be available 比 Are you free 更商务"],
+      ["我把会议邀请发到你邮箱。", "I’ll send a calendar invite to your email shortly.", "calendar invite"],
+      ["如果时间不方便，请告诉我两个可选时段。", "If that time doesn’t work, please share two alternative slots.", "alternative slots"]
+    ]
+  },
+  {
+    id: "mail", no: "03", title: "写邮件", en: "Write an email",
+    lines: [
+      ["我写这封邮件是想跟进周报。", "I’m writing to follow up on the weekly report.", "follow up on"],
+      ["能否请你在周五五点前确认？", "Could you please confirm by Friday 5pm?", "Could you please + 动作 + by 时间"],
+      ["如有问题请随时告诉我。", "Please let me know if you have any questions.", "收尾万能句"]
+    ]
+  },
+  {
+    id: "update", no: "04", title: "汇报进度", en: "Give an update",
+    lines: [
+      ["目前我们按计划推进。", "We’re currently on track.", "on track / slightly delayed"],
+      ["已经完成材料初稿。", "We’ve completed the first draft of the materials.", "We’ve completed"],
+      ["下一步是周五前收集反馈。", "Next, I will collect feedback by Friday.", "Next, I will"]
+    ]
+  },
+  {
+    id: "ask", no: "05", title: "提问确认", en: "Ask and confirm",
+    lines: [
+      ["我可以确认一下截止日期吗？", "Just to confirm, is the deadline this Friday?", "Just to confirm"],
+      ["我没完全跟上，可以再说明一下吗？", "Sorry, I didn’t quite catch that. Could you please clarify?", "clarify"],
+      ["所以下一步是我先整理纪要，对吗？", "So the next step is for me to draft the minutes, is that right?", "So ... is that right?"]
+    ]
+  },
+  {
+    id: "delay", no: "06", title: "拒绝 / 延期", en: "Decline or delay",
+    lines: [
+      ["感谢邀请，不过那天我已有安排。", "Thanks for the invitation, but I already have a commitment that day.", "commitment"],
+      ["这份材料我需要多一天，周三给可以吗？", "I’ll need one extra day on this. Would Wednesday work instead?", "Would ... work instead?"],
+      ["我现在无法承诺这个时间，但可以先给部分内容。", "I can’t commit to that timeline yet, but I can share a partial update today.", "can’t commit ... yet"]
+    ]
+  },
+  {
+    id: "minutes", no: "07", title: "会后总结", en: "Wrap up a meeting",
+    lines: [
+      ["我总结一下今天的要点。", "Let me quickly recap the key points.", "recap"],
+      ["行动项是：我做纪要，Alex 更新表格。", "Action items: I’ll draft the minutes, and Alex will update the sheet.", "Action items"],
+      ["纪要我将在今天下班前发出。", "I’ll circulate the notes by the end of today.", "circulate"]
+    ]
+  },
+  {
+    id: "small", no: "08", title: "会前寒暄", en: "Small talk",
+    lines: [
+      ["最近项目忙吗？", "How’s the project going these days?", "不要一上来 How old are you"],
+      ["今天会议应该不会太长。", "This should be a fairly short meeting today.", "fairly short"],
+      ["会后我把资料发你。", "I’ll send the materials over after the meeting.", "send over"]
+    ]
+  }
+];
+
+const MAIL_TYPES = {
+  follow: {
+    label: "跟进 / 催办",
+    body: (n, t, a, w) =>
+`Hi ${n},
+
+I hope you’re well. I’m writing to follow up on ${t}.
+
+Could you please ${a} by ${w} so that we can keep the timeline?
+
+Please let me know if you have any questions.
+
+Best regards,
+[Your Name]`
+  },
+  request: {
+    label: "请求帮助",
+    body: (n, t, a, w) =>
+`Hi ${n},
+
+I hope you’re doing well. I need your help with ${t}.
+
+Would you be able to ${a} by ${w}? This would help us move to the next step.
+
+Thank you in advance.
+
+Best regards,
+[Your Name]`
+  },
+  confirm: {
+    label: "确认信息",
+    body: (n, t, a, w) =>
+`Hi ${n},
+
+Just to confirm the details of ${t}:
+
+- Action: ${a}
+- Deadline: ${w}
+
+Please let me know if anything should be changed.
+
+Best regards,
+[Your Name]`
+  },
+  sorry: {
+    label: "道歉 / 延期",
+    body: (n, t, a, w) =>
+`Hi ${n},
+
+I’m sorry for the delay on ${t}. I needed additional time to check the details.
+
+I will ${a} by ${w}. Thank you for your patience.
+
+Best regards,
+[Your Name]`
+  },
+  invite: {
+    label: "约会议",
+    body: (n, t, a, w) =>
+`Hi ${n},
+
+Could we schedule a short meeting about ${t}?
+
+I’d like to ${a}. Please let me know if ${w} works for you, or share another time.
+
+Best regards,
+[Your Name]`
+  }
+};
+
+const SPEAK = [
+  "用 60 秒介绍你自己和你在团队里做什么。",
+  "汇报一个项目：完成了什么、卡在哪、下一步是什么。",
+  "邀请同事开一个 15 分钟短会，说明目的和时间。",
+  "有一份材料要晚一天，练习礼貌地延期。",
+  "会议结束后，口头总结 3 个要点和 2 个行动项。",
+  "向对方确认截止日期和你需要做的事。"
+];
+
+const QUIZ = [
+  {
+    q: "想请对方周五前发文件，哪句更得体？",
+    opts: [
+      "I want you to send the file on Friday.",
+      "Could you please send the file by Friday?",
+      "You must send the file Friday."
+    ],
+    a: 1
+  },
+  {
+    q: "跟进一封没回复的邮件，开头用哪句？",
+    opts: [
+      "Why didn’t you reply?",
+      "I’m writing to follow up on my previous email.",
+      "Reply me now, please."
+    ],
+    a: 1
+  },
+  {
+    q: "确认截止日期，哪句最清楚？",
+    opts: [
+      "Just to confirm, is the deadline this Friday?",
+      "Deadline?",
+      "I think maybe Friday or not."
+    ],
+    a: 0
+  },
+  {
+    q: "会议里没听清，怎么说？",
+    opts: [
+      "What?",
+      "Sorry, I didn’t quite catch that. Could you please clarify?",
+      "You speak too fast."
+    ],
+    a: 1
+  },
+  {
+    q: "项目按计划，怎么汇报？",
+    opts: [
+      "Everything is perfect and no problem.",
+      "We’re currently on track.",
+      "It is good I guess."
+    ],
+    a: 1
+  },
+  {
+    q: "约会议，哪句更商务？",
+    opts: [
+      "Are you free?",
+      "Would you be available for a short meeting tomorrow afternoon?",
+      "Come to a meeting tomorrow."
+    ],
+    a: 1
+  },
+  {
+    q: "会后说你要发纪要：",
+    opts: [
+      "I’ll circulate the notes by the end of today.",
+      "I will write something later.",
+      "Wait my message."
+    ],
+    a: 0
+  },
+  {
+    q: "需要多一天，怎么说？",
+    opts: [
+      "I can’t. No way.",
+      "I’ll need one extra day. Would Wednesday work instead?",
+      "Give me more time, okay?"
+    ],
+    a: 1
+  },
+  {
+    q: "邮件收尾最稳的是：",
+    opts: [
+      "Reply ASAP!!!",
+      "Please let me know if you have any questions.",
+      "That’s all. Bye."
+    ],
+    a: 1
+  },
+  {
+    q: "自我介绍里，说明职责用：",
+    opts: [
+      "I am very excellent and hard-working.",
+      "I support the team with scheduling and document preparation.",
+      "My job is doing things."
+    ],
+    a: 1
+  }
+];
+
+const PLAN = [
+  ["第 1 天", "把骨架图背下来，刷「写邮件」3 张句卡，生成 1 封跟进邮件。"],
+  ["第 2 天", "练约会议 + 会前寒暄。用口语计时说 60 秒邀请同事开会。"],
+  ["第 3 天", "只练汇报进度三句：on track / completed / next。对着镜子说 3 遍。"],
+  ["第 4 天", "提问确认。开会时用 Just to confirm 造 5 个句子。"],
+  ["第 5 天", "拒绝和延期。写一封道歉延期邮件，再口头说一遍。"],
+  ["第 6 天", "会后总结。用 recap + action items 写 5 行纪要。"],
+  ["第 7 天", "做测验，错题重刷句卡。把 8 个场景各说 30 秒。"]
+];
+
+const ALL_CARDS = SCENES.flatMap(s => s.lines.map(l => ({
+  scene: s.title, zh: l[0], en: l[1], tip: l[2]
+})));
+
+let cardIndex = 0;
+let speakTimer = null;
+let speakLeft = 60;
+let progress = JSON.parse(localStorage.getItem("biz-en-progress") || "{}");
+
+function saveProgress() {
+  localStorage.setItem("biz-en-progress", JSON.stringify(progress));
+  const keys = ["scene", "card", "mail", "speak", "quiz"];
+  const done = keys.filter(k => progress[k]).length;
+  document.getElementById("bar").style.width = (done / keys.length * 100) + "%";
+  document.getElementById("progressText").textContent =
+    done === 0 ? "还没开始。从骨架图看一眼就练。" :
+    done < 5 ? `已完成 ${done}/5 个模块，继续往下点。` : "5 个模块都点过了。接下来按 7 天路线重复。";
+}
+
+function mark(key) {
+  progress[key] = true;
+  saveProgress();
+}
+
+function resetProgress() {
+  progress = {};
+  saveProgress();
+}
+
+function renderScenes() {
+  const box = document.getElementById("sceneGrid");
+  box.innerHTML = SCENES.map(s => `
+    <button class="card scene" onclick="openScene('${s.id}')">
+      <div class="no">${s.no}</div>
+      <h3>${s.title}</h3>
+      <div class="en">${s.en}</div>
+    </button>
+  `).join("");
+}
+
+function openScene(id) {
+  const s = SCENES.find(x => x.id === id);
+  const el = document.getElementById("sceneDetail");
+  el.style.display = "block";
+  el.innerHTML = `<h3>${s.no} ${s.title} · ${s.en}</h3>` + s.lines.map(l =>
+    `<p><strong>${l[0]}</strong><br>${l[1]}<br><span class="muted">${l[2]}</span><br>
+     <button class="btn ghost" type="button" onclick="speakEnglish(${JSON.stringify(l[1])})">朗读</button></p>`
+  ).join("");
+  mark("scene");
+  el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function setupCards() {
+  const sel = document.getElementById("cardScene");
+  sel.innerHTML = `<option value="all">全部场景</option>` +
+    SCENES.map(s => `<option value="${s.title}">${s.title}</option>`).join("");
+  sel.onchange = () => { cardIndex = 0; showCard(); };
+  showCard();
+}
+
+function currentCards() {
+  const v = document.getElementById("cardScene").value;
+  return v === "all" ? ALL_CARDS : ALL_CARDS.filter(c => c.scene === v);
+}
+
+function showCard() {
+  const list = currentCards();
+  if (!list.length) return;
+  cardIndex = (cardIndex + list.length) % list.length;
+  const c = list[cardIndex];
+  document.getElementById("cardTag").textContent = c.scene;
+  document.getElementById("cardZh").textContent = c.zh;
+  document.getElementById("cardEn").textContent = c.en;
+  document.getElementById("cardTip").textContent = c.tip;
+  document.getElementById("flipBox").classList.remove("on");
+  document.getElementById("cardCount").textContent = `${cardIndex + 1} / ${list.length}`;
+}
+
+function flipCard() {
+  document.getElementById("flipBox").classList.toggle("on");
+  mark("card");
+}
+
+function speakCard(event) {
+  if (event) event.stopPropagation();
+  const list = currentCards();
+  if (!list.length) return;
+  const c = list[cardIndex % list.length];
+  document.getElementById("flipBox").classList.add("on");
+  speakEnglish(c.en);
+  mark("card");
+}
+
+function speakMail() {
+  const text = document.getElementById("mailOut").textContent;
+  if (!text || text.includes("点击左侧")) {
+    alert("先生成一封邮件。");
+    return;
+  }
+  speakEnglish(text);
+}
+
+function nextCard() {
+  cardIndex += 1;
+  showCard();
+  mark("card");
+}
+
+function setupMail() {
+  const sel = document.getElementById("mailType");
+  sel.innerHTML = Object.entries(MAIL_TYPES).map(([k, v]) =>
+    `<option value="${k}">${v.label}</option>`
+  ).join("");
+}
+
+function buildMail() {
+  const type = document.getElementById("mailType").value;
+  const n = document.getElementById("mailName").value.trim() || "Alex";
+  const t = document.getElementById("mailThing").value.trim() || "the project";
+  const a = document.getElementById("mailAction").value.trim() || "review this";
+  const w = document.getElementById("mailWhen").value.trim() || "Friday";
+  document.getElementById("mailOut").textContent = MAIL_TYPES[type].body(n, t, a, w);
+  mark("mail");
+}
+
+async function copyMail() {
+  const text = document.getElementById("mailOut").textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("已复制。");
+  } catch {
+    alert("复制失败，请手动选中文本。");
+  }
+}
+
+function drawSpeak() {
+  document.getElementById("speakPrompt").textContent =
+    SPEAK[Math.floor(Math.random() * SPEAK.length)];
+}
+
+function fmt(n) {
+  return String(Math.floor(n / 60)).padStart(2, "0") + ":" + String(n % 60).padStart(2, "0");
+}
+
+function startSpeak() {
+  if (!document.getElementById("speakPrompt").textContent.includes("用") &&
+      !document.getElementById("speakPrompt").textContent.includes("汇报") &&
+      !document.getElementById("speakPrompt").textContent.includes("邀请") &&
+      !document.getElementById("speakPrompt").textContent.includes("材料") &&
+      !document.getElementById("speakPrompt").textContent.includes("会议") &&
+      !document.getElementById("speakPrompt").textContent.includes("确认")) {
+    drawSpeak();
+  }
+  clearInterval(speakTimer);
+  speakLeft = 60;
+  document.getElementById("speakTime").textContent = fmt(speakLeft);
+  speakTimer = setInterval(() => {
+    speakLeft -= 1;
+    document.getElementById("speakTime").textContent = fmt(Math.max(speakLeft, 0));
+    if (speakLeft <= 0) {
+      clearInterval(speakTimer);
+      mark("speak");
+      document.getElementById("speakPrompt").textContent += "  ✓ 时间到。再来一题。";
+    }
+  }, 1000);
+}
+
+function setupQuiz() {
+  document.getElementById("quizBox").innerHTML = QUIZ.map((item, i) => `
+    <div class="card q">
+      <strong>${i + 1}. ${item.q}</strong>
+      ${item.opts.map((o, j) =>
+        `<button class="opt" data-q="${i}" data-i="${j}" onclick="pick(this)">${o}</button>`
+      ).join("")}
+    </div>
+  `).join("");
+}
+
+function pick(btn) {
+  const q = btn.dataset.q;
+  document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(b => b.classList.remove("picked"));
+  btn.classList.add("picked");
+  btn.style.outline = "2px solid #1e3a5f";
+}
+
+function gradeQuiz() {
+  let score = 0;
+  QUIZ.forEach((item, i) => {
+    document.querySelectorAll(`.opt[data-q="${i}"]`).forEach(b => {
+      b.classList.remove("good", "bad");
+      const idx = Number(b.dataset.i);
+      if (idx === item.a) b.classList.add("good");
+      if (b.classList.contains("picked") && idx !== item.a) b.classList.add("bad");
+      if (b.classList.contains("picked") && idx === item.a) score += 1;
+    });
+  });
+  document.getElementById("quizResult").textContent = `得分 ${score} / ${QUIZ.length}。8 分以上就可以进入下一场景。`;
+  mark("quiz");
+}
+
+function setupPlan() {
+  document.getElementById("plan").innerHTML = PLAN.map(([d, t]) =>
+    `<div class="card"><h3>${d}</h3><p class="muted">${t}</p></div>`
+  ).join("");
+}
+
+renderScenes();
+setupCards();
+setupMail();
+setupQuiz();
+setupPlan();
+drawSpeak();
+saveProgress();
+</script>
+</body>
+</html>
