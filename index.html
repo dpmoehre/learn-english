@@ -190,7 +190,7 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
   <header class="top">
     <div class="nav">
       <div class="brand">英语学习台<small>从校园到职场 · 中文带学</small></div>
-      <a href="#beginner">新人课程</a><a href="#workplace">外企词典</a><a href="#map">表达骨架</a>
+      <a href="#beginner">新人课程</a><a href="#workplace">外企词典</a><a href="#vocab">单词表</a><a href="#map">表达骨架</a>
       <a href="#scenes">场景</a>
       <a href="#cards">句卡</a>
       <a href="#mail">邮件</a>
@@ -235,6 +235,16 @@ section { scroll-margin-top:110px; } button { font-size:15px; } button:focus-vis
       <label for="wordSearch">搜索英文缩写或中文意思</label>
       <input id="wordSearch" type="search" placeholder="试试：HR、截止、会议" />
       <div id="wordList" class="grid g2" style="margin-top:16px"></div>
+    </section>
+    <section id="vocab">
+      <span class="pill">WORD LISTS · 职场高频</span>
+      <h2>单词表：先听，再说，再标会了</h2>
+      <p class="muted">按主题记 8 组常用词。每张卡都有中文、例句和朗读。标「我会了」或「还不熟」，方便下次只练不会的。</p>
+      <label for="vocabSearch">搜索英文或中文</label>
+      <input id="vocabSearch" type="search" placeholder="试试：deadline、同事、邮件" />
+      <div class="toolbar" id="vocabTabs" aria-label="单词表主题"></div>
+      <p id="vocabStatus" class="muted" role="status"></p>
+      <div id="vocabList" class="grid g2"></div>
     </section>
     <section id="map">
       <h2>一张图记住全部骨架</h2>
@@ -823,6 +833,7 @@ drawSpeak();
 saveProgress();
 </script>
 <script src="beginner.js"></script>
+<script src="vocab.js"></script>
 <script src="experience.js"></script>
 </body>
 </html>
