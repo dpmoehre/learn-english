@@ -1,6 +1,6 @@
 // Navigation and local learning history. No analytics leave this browser.
 const HISTORY_KEY = "english-learning-history-v1";
-let historyData = { days: {}, answers: {}, reviews: {}, lastLesson: 0, counts: {}, seconds: {}, lastActive: 0 };
+let historyData = { days: {}, answers: {}, reviews: {}, lastLesson: 0, counts: {}, seconds: {}, lastActive: 0, events: [] };
 let storageAvailable = true;
 try {
   const saved = JSON.parse(localStorage.getItem(HISTORY_KEY));
@@ -13,6 +13,7 @@ try {
 if (!historyData.counts) historyData.counts = {};
 if (!historyData.seconds) historyData.seconds = {};
 if (!historyData.lastActive) historyData.lastActive = 0;
+if (!Array.isArray(historyData.events)) historyData.events = [];
 
 function saveHistory() {
   try {
@@ -27,20 +28,28 @@ function persistHistory() {
   renderStats();
 }
 
-function activity(kind) {
+function pushEvent(kind, detail) {
+  historyData.events.unshift({ t: Date.now(), kind, detail: detail || "" });
+  if (historyData.events.length > 200) historyData.events.length = 200;
+}
+
+function activity(kind, detail) {
   const d = localDay();
   if (!historyData.days[d]) historyData.days[d] = {};
   historyData.days[d][kind] = true;
   if (!historyData.counts[d]) historyData.counts[d] = {};
   historyData.counts[d][kind] = (historyData.counts[d][kind] || 0) + 1;
   historyData.lastActive = Date.now();
+  pushEvent(kind, detail);
   persistHistory();
 }
 
 function recordAnswer(key, correct) {
   if (!historyData.answers[key]) historyData.answers[key] = { first: correct, latest: correct };
   else historyData.answers[key].latest = correct;
-  activity("练习");
+  const [type, id] = String(key).split(":");
+  const title = type === "lesson" && LESSONS[Number(id)] ? LESSONS[Number(id)].title : (type === "quiz" && QUIZ[Number(id)] ? QUIZ[Number(id)].q : key);
+  activity("练习", `${correct ? "答对" : "答错"} · ${title}`);
 }
 
 function countOn(day, kind) {
@@ -168,7 +177,7 @@ const nav = document.querySelector(".nav");
 nav.innerHTML = '<a class="brand" href="#home">英语学习台<small>从校园到职场 · 中文带学</small></a><nav aria-label="主导航">' + [["home", "学习首页"], ["beginner", "新人课程"], ["workplace", "外企词典"], ["vocab", "单词表"], ["practice", "练习工具"], ["stats", "学习统计"]].map(([id, label]) => `<a href="#${id}" data-route="${id}">${label}</a>`).join("") + "</nav>";
 const statsSection = document.createElement("section");
 statsSection.id = "stats";
-statsSection.innerHTML = '<span class="pill">MY LEARNING</span><h2>时间、数量、质量，再看考核</h2><p class="muted">统计只保存在当前浏览器。浏览页面不算练习；计时从这次更新后开始，且需要你正在点或滑。旧的课程和答题会保留。</p><div id="statsContent"></div>';
+statsSection.innerHTML = '<span class="pill">MY LEARNING</span><h2>时间、数量、质量，再看考核</h2><p class="muted">数字来自你正在用的这个浏览器，不是网上的空表格。换手机或清缓存会变成另一份记录。浏览页面不算练习。</p><div id="statsContent"></div>';
 document.querySelector(".wrap").insertBefore(statsSection, document.querySelector("footer"));
 const practiceNav = document.createElement("nav");
 practiceNav.id = "practiceNav";
@@ -201,6 +210,69 @@ function dateKey(offset) {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
+function recentDayKeys(n) {
+  return Array.from({ length: n }, (_, i) => dateKey(i - (n - 1)));
+}
+
+function storedSnapshot() {
+  const lessons = new Set(completedLessons).size;
+  const vocab = vocabMarkCounts();
+  const events = historyData.events.length;
+  const answers = Object.keys(historyData.answers).length;
+  const days = Object.keys(historyData.days).length;
+  return { lessons, vocab, events, answers, days, cards: Object.keys(historyData.reviews).length };
+}
+
+function exportLearningData() {
+  const payload = {
+    app: "learn-english",
+    exportedAt: new Date().toISOString(),
+    history: historyData,
+    lessons: completedLessons,
+    vocab: typeof vocabMarks === "object" ? vocabMarks : {}
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `英语学习记录-${localDay()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function importLearningData(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data.history || !data.history.days) throw new Error("bad");
+      if (!confirm("用这个文件覆盖这台设备上的学习记录？")) return;
+      historyData = Object.assign({
+        days: {}, answers: {}, reviews: {}, lastLesson: 0,
+        counts: {}, seconds: {}, lastActive: 0, events: []
+      }, data.history);
+      if (!Array.isArray(historyData.events)) historyData.events = [];
+      if (Array.isArray(data.lessons)) {
+        completedLessons = data.lessons.filter((n) => Number.isInteger(n) && n >= 0 && n < LESSONS.length);
+        try { localStorage.setItem("beginner-lessons", JSON.stringify(completedLessons)); } catch {}
+      }
+      if (data.vocab && typeof data.vocab === "object" && typeof vocabMarks === "object") {
+        vocabMarks = data.vocab;
+        if (typeof saveVocabMarks === "function") saveVocabMarks();
+        if (typeof renderVocab === "function") renderVocab();
+      }
+      persistHistory();
+      if (typeof lessonTabs === "function") lessonTabs();
+      alert("已经导入到这台设备。");
+    } catch {
+      alert("这个文件不是本站的学习记录。");
+    }
+    input.value = "";
+  };
+  reader.readAsText(file);
+}
+
 function renderStats() {
   const box = document.getElementById("statsContent");
   const home = document.getElementById("homeDashboard");
@@ -215,7 +287,28 @@ function renderStats() {
     ["覆盖", r.coverScore, "七项考核过了几项"]
   ];
 
+  const snap = storedSnapshot();
+  const dayRows = recentDayKeys(14);
+  const eventRows = historyData.events.slice(0, 30);
   box.innerHTML = `
+    <article class="card data-box">
+      <span class="pill">LOCAL RECORD</span>
+      <h3>这些是你这台设备上的真实记录</h3>
+      <p>${storageAvailable ? "可以保存。关掉网页再打开，数字还在。" : "这台浏览器现在不能保存，关掉后可能会丢。"}换一部手机、换一个浏览器，或清掉网站数据，这里会是另一份空白，不是网站把记录弄丢了。</p>
+      <div class="grid g4">
+        <article class="card"><span class="muted">学习天数</span><p class="metric">${snap.days}</p></article>
+        <article class="card"><span class="muted">已答题目</span><p class="metric">${snap.answers}</p></article>
+        <article class="card"><span class="muted">动作流水</span><p class="metric">${snap.events}</p></article>
+        <article class="card"><span class="muted">单词标记</span><p class="metric">${snap.vocab.known + snap.vocab.again}</p></article>
+      </div>
+      <p class="muted">最近写入：${formatClock(historyData.lastActive)} · 完成课程 ${snap.lessons} · 句卡标记 ${snap.cards} · 不上传、不登录。</p>
+      <div class="toolbar">
+        <button class="btn olive" type="button" onclick="exportLearningData()">导出记录</button>
+        <label class="btn ghost" for="importLearning">导入备份</label>
+        <input id="importLearning" type="file" accept="application/json" hidden onchange="importLearningData(this)" />
+      </div>
+    </article>
+
     <article class="exam-hero card ${r.verdict === "考核通过" ? "pass" : "fail"}">
       <span class="pill">${r.verdict === "考核通过" ? "EXAM PASS" : "EXAM IN PROGRESS"}</span>
       <p class="exam-verdict">${r.verdict} · ${r.grade}</p>
@@ -281,6 +374,19 @@ function renderStats() {
     ${scoreRows.map(([name, score, tip]) => `<div class="score-line"><span>${name}分</span><progress max="100" value="${score}"></progress><b>${score}</b></div><p class="muted stat-note">${tip}</p>`).join("")}
     <p class="muted">首次答对率不因重试变高。最近答对率会随你改对而上升。</p>
 
+    <h3>近 14 天明细</h3>
+    <div class="day-table" role="table" aria-label="每日学习记录">
+      <div class="day-head" role="row"><span>日期</span><span>时长</span><span>听读</span><span>练习</span><span>单词</span><span>课程</span></div>
+      ${dayRows.map((key, i) => {
+        const has = historyData.days[key] || historyData.counts[key] || secondsOn(key);
+        return `<div class="day-row ${has ? "on" : ""}" role="row"><span>${i === 13 ? "今天" : key.split("-").slice(1).join("/")}</span><span>${formatDuration(secondsOn(key))}</span><span>${countOn(key, "听读")}</span><span>${countOn(key, "练习")}</span><span>${countOn(key, "单词")}</span><span>${countOn(key, "课程")}</span></div>`;
+      }).join("")}
+    </div>
+    <p class="muted">这次更新之前的日子可能只有「练过」，没有次数和分钟。从现在起每次听读、答题都会写入流水。</p>
+
+    <h3>最近动作 · ${historyData.events.length} 条</h3>
+    ${eventRows.length ? `<ol class="data-log">${eventRows.map((e) => `<li><time>${formatClock(e.t)}</time><strong>${e.kind}</strong><span>${e.detail || ""}</span></li>`).join("")}</ol>` : '<p class="feedback">还没有流水。去听一句或答一道情景题，再回到这里就能看见。</p>'}
+
     <h3>需要再练一遍 · ${r.wrong.length} 题</h3>
     ${r.wrong.length ? r.wrong.map(([key]) => {
       const [type, id] = key.split(":");
@@ -300,7 +406,7 @@ function renderStats() {
       <a class="btn ghost" href="#vocab">去背单词表</a>
       <a class="btn ghost" href="#stats">查看考核</a>
     </div>
-    <p class="muted">${r.fail ? `今天先做：${r.fail.action}。` : "今天的小目标：再听 8 句，开口 1 分钟。"}</p>
+    <p class="muted">${r.fail ? `今天先做：${r.fail.action}。` : "今天的小目标：再听 8 句，开口 1 分钟。"}记录只在这台设备。</p>
   `;
 }
 
@@ -342,7 +448,7 @@ const originalFinish = finishLesson;
 finishLesson = function () {
   originalFinish();
   if (lessonPassed) {
-    activity("课程");
+    activity("课程", `完成 · ${LESSONS[lessonIndex].title}`);
     const b = document.getElementById("finishLesson");
     b.disabled = true;
     b.textContent = "✓ 本课已完成";
@@ -352,7 +458,7 @@ finishLesson = function () {
 const originalSpeak = speakEnglish;
 speakEnglish = function (text) {
   originalSpeak(text);
-  if (text) activity("听读");
+  if (text) activity("听读", String(text).slice(0, 48));
 };
 
 const originalGrade = gradeQuiz;
@@ -369,8 +475,8 @@ gradeQuiz = function () {
 const originalMark = mark;
 mark = function (key) {
   originalMark(key);
-  if (key === "speak") activity("口语");
-  if (key === "mail") activity("邮件");
+  if (key === "speak") activity("口语", "完成一次口语计时");
+  if (key === "mail") activity("邮件", "生成或复制邮件");
 };
 
 const reviewControls = document.createElement("div");
@@ -381,7 +487,7 @@ document.getElementById("cards").append(reviewControls);
 function rateCard(value) {
   const c = currentCards()[cardIndex];
   historyData.reviews[c.en] = value;
-  activity("句卡");
+  activity("句卡", `${value === "known" ? "会说了" : "待复习"} · ${c.en}`);
   document.getElementById("cardFeedback").textContent = value === "known" ? "已记为掌握，继续下一张。" : "已加入待复习，再读一次试试。";
   if (value === "known") nextCard();
 }

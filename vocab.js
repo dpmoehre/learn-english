@@ -273,7 +273,7 @@ function currentVocabItems() {
 function markVocab(en, value) {
   vocabMarks[en] = value;
   saveVocabMarks();
-  if (typeof activity === "function") activity("单词");
+  if (typeof activity === "function") activity("单词", `${value === "known" ? "掌握" : "待复习"} · ${en}`);
   renderVocab();
 }
 
